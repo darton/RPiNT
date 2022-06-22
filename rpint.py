@@ -186,7 +186,7 @@ def main():
     redis_db = db_connect('localhost', 0)
     redis_db.flushdb()
 
-    config_yaml = config_load('/home/pi/scripts/RPiMS/rpims.yaml')
+    config_yaml = config_load('/home/pi/scripts/RPiNT/rpint.yaml')
     config = config_yaml['setup']
 
     lldp()
@@ -194,8 +194,9 @@ def main():
     if bool(config['use_serial_display']) is True:
         threading_function(serial_displays, **config)
 
-    button = Button(21)
+    button = Button(21, hold_time=5)
     button.when_pressed = lldp
+    button.when_held = shutdown
     pause()
 
 
