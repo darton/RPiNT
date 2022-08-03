@@ -86,7 +86,7 @@ systemctl start redis-server.service
 
 mv $unpackdir/rpint.service /lib/systemd/system/rpint.service
 systemctl daemon-reload
-systemctl enable --now rpint.service
+systemctl enable rpint.service
 
 rm $downloaddir/RPiNT.zip
 rmdir --ignore-fail-on-non-empty $unpackdir
