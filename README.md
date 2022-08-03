@@ -2,6 +2,12 @@
 
 Link Layer Discovery Tool based on RPi Zero
 
+## Installation
+
+```
+curl -sS https://raw.githubusercontent.com/darton/RPiNT/main/install.sh |sudo bash
+```
+
 ## B.o.M - Bill of Materials
 
 * [1.44inch-lcd-hat](https://www.waveshare.com/product/raspberry-pi/displays/lcd-oled/1.44inch-lcd-hat.htm)
