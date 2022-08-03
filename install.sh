@@ -62,18 +62,18 @@ $INSTALL_CMD libtiff5
 $INSTALL_CMD libjpeg-dev
 
 $INSTALL_CMD build-essential
-$INSTALL_CMD python3-gpiozero
 $INSTALL_CMD python3-dev
-$INSTALL_CMD python3-systemd
 $INSTALL_CMD python3-pip
 $INSTALL_CMD python3-setuptools
 $INSTALL_CMD python3-wheel
+$INSTALL_CMD python3-gpiozero
+$INSTALL_CMD python3-systemd
+$INSTALL_CMD python3-pil
 
 $PIP3_INSTALL_CMD redis
 $PIP3_INSTALL_CMD pid
 $PIP3_INSTALL_CMD PyYAML
 $PIP3_INSTALL_CMD luma.core luma.oled luma.lcd
-#$PIP3_INSTALL_CMD systemd
 
 $INSTALL_CMD redis-server
 systemctl enable redis-server.service
