@@ -111,22 +111,21 @@ def serial_displays(**kwargs):
                     draw.text((x+1, top+15), 'Name', font=font, fill="lime")
                     draw.text((x+40, top+15), str(chassis), font=font, fill="cyan")
 
-                    draw.text((x+1, top+28), 'Port',  font=font, fill="lime")
-                    draw.text((x+40, top+28), str(port),  font=font, fill="cyan")
+                    draw.text((x+1, top+30), 'Port',  font=font, fill="lime")
+                    draw.text((x+40, top+30), str(port),  font=font, fill="cyan")
 
-                    draw.text((x+1, top+41), 'VLANid',  font=font, fill="lime")
-                    draw.text((x+56, top+41), str(vlan_id),  font=font, fill="cyan")
+                    draw.text((x+1, top+45), 'VLANid',  font=font, fill="lime")
+                    draw.text((x+56, top+45), str(vlan_id),  font=font, fill="cyan")
 
-                    draw.text((x+1, top+57), 'PowerSup',  font=font, fill="lime")
-                    draw.text((x+72, top+57), str(power_supported),  font=font, fill="cyan")
+                    draw.text((x+1, top+60), 'PowerSup',  font=font, fill="lime")
+                    draw.text((x+72, top+60), str(power_supported),  font=font, fill="cyan")
 
-                    draw.text((x+1, top+70), 'PowerEn',  font=font, fill="lime")
-                    draw.text((x+64, top+70), str(power_enabled),  font=font, fill="cyan")
+                    draw.text((x+1, top+75), 'PowerEn',  font=font, fill="lime")
+                    draw.text((x+64, top+75), str(power_enabled),  font=font, fill="cyan")
 
-                    draw.text((x+1, top+86), 'mode',  font=font, fill="lime")
-                    draw.text((x+40, top+86), str(auto_negotiation),  font=font, fill="cyan")
-                    #draw.text((x+1, top+99), 'Battery:',  font=font, fill="lime")
-                    #draw.text((x+45, top+99), str(descr),  font=font, fill="cyan")
+                    draw.text((x+1, top+90), 'mode',  font=font, fill="lime")
+                    draw.text((x+40, top+90), str(auto_negotiation),  font=font, fill="cyan")
+
                     draw.text((x+1, top+115), 'Power', font=font, fill="lime")
                     draw.text((x+42, top+115), str(battery_power)+'%',  font=font, fill="cyan")
                 sleep(1/kwargs['serial_display_refresh_rate'])
@@ -174,6 +173,7 @@ def config_load(path_to_config):
 def ups_hat():
     from INA219 import INA219
     ina219 = INA219(addr=0x42)
+
     while True:
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
         shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
