@@ -23,7 +23,6 @@ def lldp():
   import json
   import subprocess
   from gpiozero import Button
-  from time import sleep
 
   command = ('lldpcli show neighbors details -f json')
 
