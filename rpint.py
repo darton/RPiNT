@@ -66,10 +66,9 @@ def serial_displays(**kwargs):
         from luma.core.render import canvas
         from luma.lcd.device import st7735
         from PIL import ImageFont
-        from time import time, sleep
-        import datetime
-        #import logging
-        import redis
+        from time import sleep
+
+
     # Load default font.
         #font = ImageFont.load_default()
         font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', 15)
