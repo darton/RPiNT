@@ -22,7 +22,6 @@ def shutdown():
 def lldp():
   import json
   import subprocess
-  from gpiozero import Button
   from time import sleep
 
   command = ('lldpcli show neighbors details -f json')
@@ -71,8 +70,6 @@ def serial_displays(**kwargs):
         from PIL import ImageFont
         from time import time, sleep
         import datetime
-        #import logging
-        import redis
     # Load default font.
         font = ImageFont.load_default()
     # Display width/height
