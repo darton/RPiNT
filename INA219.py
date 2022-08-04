@@ -1,4 +1,4 @@
-import smbus
+from smbus2 import SMBus
 import time
 
 # Config Register (R/W)
@@ -58,7 +58,7 @@ class Mode:
 
 class INA219:
     def __init__(self, i2c_bus=1, addr=0x40):
-        self.bus = smbus.SMBus(i2c_bus);
+        self.bus = SMBus(i2c_bus);
         self.addr = addr
 
         # Set chip to known config values to start

@@ -70,7 +70,7 @@ $INSTALL_CMD python3-gpiozero
 $INSTALL_CMD python3-systemd
 $INSTALL_CMD python3-pil
 
-$PIP3_INSTALL_CMD smbus2 smbus
+$PIP3_INSTALL_CMD smbus2
 $PIP3_INSTALL_CMD redis
 $PIP3_INSTALL_CMD pid
 $PIP3_INSTALL_CMD PyYAML

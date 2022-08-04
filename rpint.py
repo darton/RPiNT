@@ -172,8 +172,8 @@ def config_load(path_to_config):
 
 def ups_hat():
     from INA219 import INA219
-    ina219 = INA219(addr=0x43)
 
+    ina219 = INA219(addr=0x43)
     while True:
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
         shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
