@@ -8,6 +8,11 @@ Link Layer Discovery Tool based on RPi Zero
 curl -sS https://raw.githubusercontent.com/darton/RPiNT/main/install.sh |sudo bash
 ```
 
+## Usage
+
+To read lldp data, connect the UTP cable to the device, wait a few seconds, press "key 1" a few seconds. If there is no reading, try again.
+
+
 ## B.o.M - Bill of Materials
 
 * [1.44inch-lcd-hat](https://www.waveshare.com/product/raspberry-pi/displays/lcd-oled/1.44inch-lcd-hat.htm)
