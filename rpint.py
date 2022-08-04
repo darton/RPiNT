@@ -103,7 +103,7 @@ def serial_displays(**kwargs):
                 vlan_id = lldp['vlan_id']
                 power_supported = lldp['power_supported']
                 power_enabled = lldp['power_enabled']
-                battery_power = lldp['battery_power']
+                battery_power = redis_db.get('battery_power')
 
                 # Draw
                 with canvas(device) as draw:
@@ -182,7 +182,7 @@ def ups_hat():
         p = (bus_voltage - 3)/1.2*100
         if(p > 100):p = 100
         if(p < 0):p = 0
-        redis_db.hset('LLDP', 'battery_power', round(p))
+        redis_db.set('battery_power', round(p))
 
 def main():
     from gpiozero import Button
@@ -202,11 +202,11 @@ def main():
 
     lldp()
 
-    if bool(config['use_serial_display']) is True:
-        threading_function(serial_displays, **config)
-
     if bool(config['use_ups_hat']) is True:
         threading_function(ups_hat)
+
+    if bool(config['use_serial_display']) is True:
+        threading_function(serial_displays, **config)
 
     button = Button(21, hold_time=5)
     button.when_pressed = lldp
