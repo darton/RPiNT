@@ -180,6 +180,14 @@ def ups_hat():
         if(p < 0):p = 0
         redis_db.set('battery_power', round(p))
 
+
+def lldpd():
+  from time import sleep
+  while True:
+    lldp()
+    sleep(1)
+
+
 def main():
     from gpiozero import Button
     from signal import pause
@@ -203,6 +211,9 @@ def main():
 
     if bool(config['use_serial_display']) is True:
         threading_function(serial_displays, **config)
+
+    if bool(config['auto_lldp_read']) is True:
+        threading_function(lldpd)
 
     button = Button(21, hold_time=5)
     button.when_pressed = lldp
