@@ -47,8 +47,6 @@ unzip  $downloaddir/RPiNT.zip -d $downloaddir
 cp $unpackdir/* $installdir
 chmod u+x $installdir/*.py
 chown -R pi.pi $installdir
-systemctl stop dphys-swapfile.service
-systemctl disable dphys-swapfile.service
 
 apt-get -y update
 apt-get -y upgrade
@@ -89,6 +87,8 @@ mv $unpackdir/rpint.service /lib/systemd/system/rpint.service
 systemctl daemon-reload
 systemctl enable rpint.service
 
+systemctl stop dphys-swapfile.service
+systemctl disable dphys-swapfile.service
 systemctl disable systemd-random-seed.service
 systemctl disable hciuart.service
 systemctl disable dhcpcd.service
