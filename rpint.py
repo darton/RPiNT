@@ -22,10 +22,8 @@ def shutdown():
 def lldp():
   import json
   import subprocess
-  from gpiozero import Button
 
   command = ('lldpcli show neighbors details -f json')
-
   p = subprocess.Popen(command, universal_newlines=True,
   shell=True, stdout=subprocess.PIPE,
   stderr=subprocess.PIPE)
