@@ -22,6 +22,7 @@ def shutdown():
 def lldp():
   import json
   import subprocess
+  from gpiozero import Button
   from time import sleep
 
   command = ('lldpcli show neighbors details -f json')
@@ -70,8 +71,11 @@ def serial_displays(**kwargs):
         from PIL import ImageFont
         from time import time, sleep
         import datetime
+        #import logging
+        import redis
     # Load default font.
-        font = ImageFont.load_default()
+        #font = ImageFont.load_default()
+        font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', 15)
     # Display width/height
         width = 128
         height = 128
@@ -99,36 +103,32 @@ def serial_displays(**kwargs):
                 vlan_id = lldp['vlan_id']
                 power_supported = lldp['power_supported']
                 power_enabled = lldp['power_enabled']
+                battery_power = lldp['battery_power']
 
                 # Draw
                 with canvas(device) as draw:
-                    draw.text((x+35, top), 'SWITCH' , font=font, fill="yellow")
-                    draw.text((x, top+15), ' Name:', font=font, fill="lime")
-                    # draw.text((x+71, top+15),'', font=font, fill="blue")
-                    draw.text((x+37, top+15), str(chassis), font=font, fill="cyan")
+                    draw.text((x+38, top), str(descr) , font=font, fill="yellow")
+                    draw.text((x+1, top+15), 'Name', font=font, fill="lime")
+                    draw.text((x+40, top+15), str(chassis), font=font, fill="cyan")
 
-                    draw.text((x, top+28), ' Port:',  font=font, fill="lime")
-                    # draw.text((x+70, top+28),'', font=font, fill="blue")
-                    draw.text((x+37, top+28), str(port),  font=font, fill="cyan")
+                    draw.text((x+1, top+28), 'Port',  font=font, fill="lime")
+                    draw.text((x+40, top+28), str(port),  font=font, fill="cyan")
 
-                    draw.text((x, top+41), ' VLAN id:',  font=font, fill="lime")
-                    # draw.text((x+70, top+41),'', font=font, fill="blue")
-                    draw.text((x+57, top+41), str(vlan_id),  font=font, fill="cyan")
+                    draw.text((x+1, top+41), 'VLANid',  font=font, fill="lime")
+                    draw.text((x+56, top+41), str(vlan_id),  font=font, fill="cyan")
 
-                    draw.text((x, top+57), ' Power Sup:',  font=font, fill="lime")
-                    ## draw.text((x+70, top+57),'', font=font, fill="yellow")
-                    draw.text((x+67, top+57), str(power_supported),  font=font, fill="cyan")
+                    draw.text((x+1, top+57), 'PowerSup',  font=font, fill="lime")
+                    draw.text((x+72, top+57), str(power_supported),  font=font, fill="cyan")
 
-                    draw.text((x, top+70), ' Power En:',  font=font, fill="lime")
-                    ## draw.text((x+70, top+70),'', font=font, fill="yellow")
-                    draw.text((x+67, top+70), str(power_enabled),  font=font, fill="cyan")
+                    draw.text((x+1, top+70), 'PowerEn',  font=font, fill="lime")
+                    draw.text((x+64, top+70), str(power_enabled),  font=font, fill="cyan")
 
-                    draw.text((x, top+86), ' Model:',  font=font, fill="lime")
-                    draw.text((x+45, top+86), str(descr),  font=font, fill="cyan")
-                    draw.text((x, top+99), ' Mode:',  font=font, fill="lime")
-                    draw.text((x+45, top+99), str(auto_negotiation),  font=font, fill="cyan")
-                    draw.text((x+5, top+115), str(mac.upper()), font=font, fill="cyan")
-
+                    draw.text((x+1, top+86), 'mode',  font=font, fill="lime")
+                    draw.text((x+40, top+86), str(auto_negotiation),  font=font, fill="cyan")
+                    #draw.text((x+1, top+99), 'Battery:',  font=font, fill="lime")
+                    #draw.text((x+45, top+99), str(descr),  font=font, fill="cyan")
+                    draw.text((x+1, top+115), 'Power', font=font, fill="lime")
+                    draw.text((x+42, top+115), str(battery_power)+'%',  font=font, fill="cyan")
                 sleep(1/kwargs['serial_display_refresh_rate'])
         except Exception as err:
             print(err)
@@ -170,6 +170,20 @@ def config_load(path_to_config):
         journal.send(error)
         sys.exit(error)
 
+
+def ups_hat():
+    from INA219 import INA219
+    ina219 = INA219(addr=0x42)
+    while True:
+        bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
+        shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
+        current = ina219.getCurrent_mA()                   # current in mA
+        power = ina219.getPower_W()                        # power in W
+        p = (bus_voltage - 3)/1.2*100
+        if(p > 100):p = 100
+        if(p < 0):p = 0
+        redis_db.hset('LLDP', 'battery_power', round(p))
+
 def main():
     from gpiozero import Button
     from signal import pause
@@ -190,6 +204,9 @@ def main():
 
     if bool(config['use_serial_display']) is True:
         threading_function(serial_displays, **config)
+
+    if bool(config['use_ups_hat']) is True:
+        threading_function(ups_hat)
 
     button = Button(21, hold_time=5)
     button.when_pressed = lldp
