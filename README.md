@@ -10,10 +10,8 @@ curl -sS https://raw.githubusercontent.com/darton/RPiNT/main/install.sh |sudo ba
 
 ## Usage
 
-To read lldp data, connect the UTP cable to the device, wait a few seconds, press "KEY1" a few seconds. If there is no reading, try again.
-
+Reading lldp data is done automatically after connecting UTP cable to the device. The process of reading lldp data takes a few seconds.
 To shut down the system, press "KEY1" for more than 5 seconds.
-
 
 ## B.o.M - Bill of Materials
 
