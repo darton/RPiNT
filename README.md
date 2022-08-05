@@ -20,6 +20,12 @@ Running the following command will download and run the script.
 curl -sS https://raw.githubusercontent.com/darton/RPiNT/main/install.sh |sudo bash
 ```
 
+Start/Stop RPiNT
+```
+sudo systemctl start rpint.service
+sudo systemclt stop rpint.service
+```
+
 ## Usage
 
 Reading lldp data is done automatically after connecting UTP cable to the device. The process of reading lldp data takes a few seconds.
