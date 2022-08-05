@@ -8,9 +8,7 @@ Link Layer Discovery Tool based on RPi Zero
 
 Download the image [Raspberry Pi OS Lite](https://downloads.raspberrypi.org/raspios_lite_armhf_latest)
 
-To writing an image to the SD card, use [Etcher](https://etcher.io/) an image writing tool or use [Imager](https://www.raspberrypi.org/downloads/)
-
-If you're not using Etcher, you'll need to unzip .zip downloads to get the image file (.img) to write to your SD card.
+To writing an image to the SD card, use [Imager](https://www.raspberrypi.org/downloads/) 
 
 ### Run installation script
 
