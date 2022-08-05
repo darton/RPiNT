@@ -1,1 +1,7 @@
-
+smbus2
+redis
+pid
+PyYAML
+luma.core
+luma.oled
+luma.lcd
