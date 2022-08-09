@@ -19,6 +19,7 @@ def shutdown():
     from subprocess import check_call
     check_call(['sudo', 'poweroff'])
 
+
 def lldp():
   import json
   import subprocess
@@ -31,6 +32,7 @@ def lldp():
   retcode = p.wait()
   lldp = json.loads(text)
   lldp_len = len(lldp['lldp'])
+
   if lldp_len != 0:
     chassis = list(lldp['lldp']['interface']['eth0']['chassis'])[0]
     descr = lldp['lldp']['interface']['eth0']['chassis'][chassis]['descr'].split()
@@ -60,6 +62,7 @@ def lldp():
     redis_db.hset('LLDP', 'power_enabled', '--')
     redis_db.hset('LLDP', 'power_enabled', '--')
 
+
 def serial_displays(**kwargs):
     if kwargs['serial_display_type'] == 'lcd_st7735':
         from luma.core.interface.serial import spi
@@ -67,7 +70,6 @@ def serial_displays(**kwargs):
         from luma.lcd.device import st7735
         from PIL import ImageFont
         from time import sleep
-
 
     # Load default font.
         #font = ImageFont.load_default()
@@ -121,9 +123,9 @@ def serial_displays(**kwargs):
 
                     draw.text((x+1, top+90), 'mode',  font=font, fill="lime")
                     draw.text((x+40, top+90), str(auto_negotiation),  font=font, fill="cyan")
-
-                    draw.text((x+1, top+115), 'Power', font=font, fill="lime")
-                    draw.text((x+42, top+115), str(battery_power)+'%',  font=font, fill="cyan")
+                    if bool(config['use_ups_hat']) is True:
+                      draw.text((x+1, top+115), 'Power', font=font, fill="lime")
+                      draw.text((x+42, top+115), str(battery_power)+'%',  font=font, fill="cyan")
                 sleep(1/kwargs['serial_display_refresh_rate'])
         except Exception as err:
             print(err)
@@ -168,8 +170,8 @@ def config_load(path_to_config):
 
 def ups_hat():
     from INA219 import INA219
-
     ina219 = INA219(addr=0x43)
+
     while True:
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
         shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
@@ -202,6 +204,7 @@ def main():
     redis_db.flushdb()
 
     config_yaml = config_load('/home/pi/scripts/RPiNT/rpint.yaml')
+    global config
     config = config_yaml['setup']
 
     lldp()
