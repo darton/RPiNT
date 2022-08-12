@@ -195,6 +195,8 @@ def main():
     from signal import pause
     import sys
 
+    button = Button(21, hold_time=5)
+    
     print('')
     print('# RPiNT is running #')
     print('')
@@ -217,9 +219,9 @@ def main():
 
     if bool(config['auto_lldp_read']) is True:
         threading_function(lldpd)
+    else:
+        button.when_pressed = lldp
 
-    button = Button(21, hold_time=5)
-    button.when_pressed = lldp
     button.when_held = shutdown
     pause()
 
