@@ -26,7 +26,13 @@ sudo systemclt stop rpint.service
 
 ## Usage
 
+auto_lldp_read: true
+
 Reading lldp data is done automatically after connecting UTP cable to the device. The process of reading lldp data takes a few seconds.
+
+auto_lldp_read: false
+
+To read lldp data, connect the UTP cable to the device, wait a few seconds, press "key 1" a few seconds. If there is no reading, try again.
 
 To shut down the system, press "KEY1" for more than 5 seconds.
 
