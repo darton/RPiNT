@@ -2,6 +2,8 @@
 
 Link Layer Discovery Tool based on RPi Zero
 
+![RPiNT](https://github.com/darton/RPiNT/blob/main/RPiNT.jpg)
+
 ## Installation
 
 ### Installing operating system images 
