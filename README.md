@@ -4,17 +4,13 @@ Link Layer Discovery Tool based on RPi Zero
 
 ![RPiNT](https://github.com/darton/RPiNT/blob/main/RPiNT.jpg)
 
-![RPiNT]
-(https://github.com/darton/RPiNT/blob/main/IMG_1695.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1695.jpeg)
 
-![RPiNT]
-(https://github.com/darton/RPiNT/blob/main/IMG_1696.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1696.jpeg)
 
-![RPiNT]
-(https://github.com/darton/RPiNT/blob/main/IMG_1697.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1697.jpeg)
 
-![RPiNT]
-(https://github.com/darton/RPiNT/blob/main/IMG_1698.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1698.jpeg)
 
 ## Installation
 
