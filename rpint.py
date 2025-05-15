@@ -41,9 +41,9 @@ def lldp():
     mac = lldp['lldp']['interface']['eth0']['chassis'][chassis]['id']['value']
     port = lldp['lldp']['interface']['eth0']['port']['id']['value']
     auto_negotiation = lldp['lldp']['interface']['eth0']['port']['auto-negotiation']['current'].split()
-    vlan_id = lldp.get('lldp').get('interface').get('eth0').get('vlan', {}).get('vlan-id', "False")
-    power_supported = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('supported', "False")
-    power_enabled = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('enabled', "False")
+    vlan_id = lldp.get('lldp').get('interface').get('eth0').get('vlan', {}).get('vlan-id', "N/A")
+    power_supported = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('supported', "N/A")
+    power_enabled = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('enabled', "N/A")
     redis_db.hset('LLDP', 'chassis', chassis)
     redis_db.hset('LLDP', 'descr', str(descr[0]))
     redis_db.hset('LLDP', 'mac', mac)
