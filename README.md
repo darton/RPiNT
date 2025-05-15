@@ -36,7 +36,7 @@ sudo systemclt stop rpint.service
 
 ## Usage
 
-# rpint.toml config file
+### rpint.toml config file
 
 auto_lldp_read = true
 
