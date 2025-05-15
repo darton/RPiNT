@@ -46,7 +46,7 @@ curl -sS $repourl -L -o $downloaddir/RPiNT.zip
 unzip  $downloaddir/RPiNT.zip -d $downloaddir
 cp $unpackdir/* $installdir
 chmod u+x $installdir/*.py
-chown -R pi.pi $installdir
+chown -R $SUDO_USER:$SUDO_USER $installdir
 
 apt-get -y update
 apt-get -y upgrade
