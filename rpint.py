@@ -228,15 +228,10 @@ def main():
 
 # --- Main program ---
 if __name__ == '__main__':
-    import pid
     try:
-        with pid.PidFile('/home/pi/scripts/RPiNT/rpint.pid'):
-            main()
+        main()
     except KeyboardInterrupt:
         print('')
         print('# RPiNT is stopped #')
-    except pid.PidFileError:
-        print('')
-        print('Another instance of RPiNT is already running. RPiNT will now close.')
     except Exception as err:
         print(err)
