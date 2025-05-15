@@ -48,6 +48,7 @@ auto_lldp_read = false
 To read lldp data, connect the UTP cable to the device, wait a few seconds, press "key 1" a few seconds. If there is no reading, try again.
 
 
+### Shutdown
 To shut down the system, press "KEY1" for more than 5 seconds.
 
 ## B.o.M - Bill of Materials
