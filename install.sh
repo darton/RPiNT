@@ -87,12 +87,12 @@ mv $unpackdir/rpint.service /lib/systemd/system/rpint.service
 systemctl daemon-reload
 systemctl enable rpint.service
 
-systemctl stop dphys-swapfile.service
-systemctl disable dphys-swapfile.service
-systemctl disable systemd-random-seed.service
-systemctl disable hciuart.service
-systemctl disable dhcpcd.service
-systemctl disable --now systemd-timesyncd.service
+systemctl stop dphys-swapfile.service 2>/dev/null
+systemctl disable dphys-swapfile.service 2>/dev/null
+systemctl disable systemd-random-seed.service 2>/dev/null
+systemctl disable hciuart.service 2>/dev/null
+systemctl disable dhcpcd.service 2>/dev/null
+systemctl disable --now systemd-timesyncd.service 2>/dev/null
 
 echo "sudo ip link set dev eth0 up" | tee -a /etc/rc.local
 
