@@ -67,12 +67,10 @@ $INSTALL_CMD python3-wheel
 $INSTALL_CMD python3-gpiozero
 $INSTALL_CMD python3-systemd
 $INSTALL_CMD python3-pil
-
-$PIP3_INSTALL_CMD smbus2
-$PIP3_INSTALL_CMD redis
-$PIP3_INSTALL_CMD pid
-$PIP3_INSTALL_CMD PyYAML
-$PIP3_INSTALL_CMD luma.core luma.oled luma.lcd
+$INSTALL_CMD python3-redis
+$INSTALL_CMD python3-luma.core
+$INSTALL_CMD python3-luma.oled
+$INSTALL_CMD python3-luma.lcd
 
 $INSTALL_CMD redis-server
 systemctl enable redis-server.service
@@ -82,6 +80,10 @@ echo 'vm.overcommit_memory=1' | tee -a /etc/sysctl.conf
 echo 'net.core.somaxconn=512' | tee -a /etc/sysctl.conf
 echo 'maxmemory 100mb' | tee -a /etc/redis/redis.conf
 systemctl start redis-server.service
+
+$PIP3_INSTALL_CMD pid
+$PIP3_INSTALL_CMD PyYAML
+
 
 mv $unpackdir/rpint.service /lib/systemd/system/rpint.service
 systemctl daemon-reload
