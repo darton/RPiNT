@@ -7,8 +7,8 @@ Documentation=https://github.com/darton/rpint
 
 [Service]
 Type=simple
-User=pi
-Group=pi
+User=root
+Group=root
 ExecStart=/usr/bin/python3 /home/pi/scripts/RPiNT/rpint.py
 StandardInput=tty-force
 
