@@ -23,6 +23,7 @@ def shutdown():
 def lldp():
   import json
   import subprocess
+  import pprint
 
   command = ('lldpcli show neighbors details -f json')
   p = subprocess.Popen(command, universal_newlines=True,
@@ -32,6 +33,7 @@ def lldp():
   retcode = p.wait()
   lldp = json.loads(text)
   lldp_len = len(lldp['lldp'])
+  #pprint.pprint(lldp)
 
   if lldp_len != 0:
     chassis = list(lldp['lldp']['interface']['eth0']['chassis'])[0]
@@ -39,9 +41,9 @@ def lldp():
     mac = lldp['lldp']['interface']['eth0']['chassis'][chassis]['id']['value']
     port = lldp['lldp']['interface']['eth0']['port']['id']['value']
     auto_negotiation = lldp['lldp']['interface']['eth0']['port']['auto-negotiation']['current'].split()
-    vlan_id = lldp['lldp']['interface']['eth0']['vlan']['vlan-id']
-    power_supported = lldp['lldp']['interface']['eth0']['port']['power']['supported']
-    power_enabled = lldp['lldp']['interface']['eth0']['port']['power']['enabled']
+    vlan_id = lldp.get('lldp').get('interface').get('eth0').get('vlan', {}).get('vlan-id', "False")
+    power_supported = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('supported', "False")
+    power_enabled = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('enabled', "False")
     redis_db.hset('LLDP', 'chassis', chassis)
     redis_db.hset('LLDP', 'descr', str(descr[0]))
     redis_db.hset('LLDP', 'mac', mac)
