@@ -158,10 +158,10 @@ def config_load(path_to_config):
     from systemd import journal
 
     try:
-        import yaml
-        with open(path_to_config, mode='r') as file:
-            config_yaml = yaml.full_load(file)
-        return config_yaml
+        import tomllib
+        with open(path_to_config, "rb") as file:
+            config_toml = tomllib.load(file)
+        return config_toml
     except:
         error = f"Can't load RPiNT config file: {path_to_config}"
         journal.send(error)
@@ -191,12 +191,14 @@ def lldpd():
 
 
 def main():
+    from gpiozero.pins.rpigpio import RPiGPIOFactory
+    factory = RPiGPIOFactory
     from gpiozero import Button
     from signal import pause
     import sys
 
     button = Button(21, hold_time=5)
-    
+
     print('')
     print('# RPiNT is running #')
     print('')
@@ -205,9 +207,9 @@ def main():
     redis_db = db_connect('localhost', 0)
     redis_db.flushdb()
 
-    config_yaml = config_load('/home/pi/scripts/RPiNT/rpint.yaml')
+    config_full = config_load('/home/pi/scripts/RPiNT/rpint.toml')
     global config
-    config = config_yaml['setup']
+    config = config_full['setup']
 
     lldp()
 
