@@ -13,18 +13,44 @@
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 
+
+
+import json
+import subprocess
+import pprint
+import threading
+import redis
+import sys
+import tomllib
+from luma.core.interface.serial import spi
+from luma.core.render import canvas
+from luma.lcd.device import st7735
+from PIL import ImageFont
+from time import sleep
+from systemd import journal
+from gpiozero.pins.rpigpio import RPiGPIOFactory
+from gpiozero import Button
+from signal import pause
+from subprocess import check_call
+
+
+
 # --- Functions ---
 
 def shutdown():
-    from subprocess import check_call
     check_call(['sudo', 'poweroff'])
 
 
-def lldp():
-  import json
-  import subprocess
-  import pprint
+def hset_init_values():
+    redis_db.hset('LLDP', 'chassis', '--')
+    redis_db.hset('LLDP', 'port', '--')
+    redis_db.hset('LLDP', 'auto_negotiation', '--')
+    redis_db.hset('LLDP', 'vlan_id', '--')
+    redis_db.hset('LLDP', 'power_supported', '--')
+    redis_db.hset('LLDP', 'power_enabled', '--')
 
+
+def lldp():
   command = ('lldpcli show neighbors details -f json')
   p = subprocess.Popen(command, universal_newlines=True,
   shell=True, stdout=subprocess.PIPE,
@@ -36,114 +62,199 @@ def lldp():
   #pprint.pprint(lldp)
 
   if lldp_len != 0:
-    chassis = list(lldp['lldp']['interface']['eth0']['chassis'])[0]
-    descr = lldp['lldp']['interface']['eth0']['chassis'][chassis]['descr'].split()
-    mac = lldp['lldp']['interface']['eth0']['chassis'][chassis]['id']['value']
-    port = lldp['lldp']['interface']['eth0']['port']['id']['value']
-    auto_negotiation = lldp['lldp']['interface']['eth0']['port']['auto-negotiation']['current'].split()
-    vlan_id = lldp.get('lldp').get('interface').get('eth0').get('vlan', {}).get('vlan-id', "N/A")
-    power_supported = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('supported', "N/A")
-    power_enabled = lldp.get('lldp').get('interface').get('eth0').get('port').get('power', {}).get('enabled', "N/A")
-    redis_db.hset('LLDP', 'chassis', chassis)
-    redis_db.hset('LLDP', 'descr', str(descr[0]))
-    redis_db.hset('LLDP', 'mac', mac)
-    redis_db.hset('LLDP', 'port', port)
-    redis_db.hset('LLDP', 'auto_negotiation', str(auto_negotiation[0]))
-    redis_db.hset('LLDP', 'vlan_id', vlan_id)
-    redis_db.hset('LLDP', 'power_supported', str(power_supported))
-    redis_db.hset('LLDP', 'power_enabled', str(power_enabled))
-    redis_db.hset('LLDP', 'power_enabled', str(power_enabled))
-  else:
-    redis_db.hset('LLDP', 'chassis', '--')
-    redis_db.hset('LLDP', 'descr', '--')
-    redis_db.hset('LLDP', 'mac', '--')
-    redis_db.hset('LLDP', 'port', '--')
-    redis_db.hset('LLDP', 'auto_negotiation', '--')
-    redis_db.hset('LLDP', 'vlan_id', '--')
-    redis_db.hset('LLDP', 'power_supported', '--')
-    redis_db.hset('LLDP', 'power_enabled', '--')
-    redis_db.hset('LLDP', 'power_enabled', '--')
 
+    eth0_data = lldp.get("lldp", {}).get("interface", {}).get("eth0", {})
+
+    # Pobranie dynamicznego Chassis ID (pierwszy dostępny klucz)
+    chassis_key = next(iter(eth0_data.get("chassis", {})), "Unknown")
+    chassis_data = eth0_data.get("chassis", {}).get(chassis_key, {})
+
+    # Pobranie kluczowych danych
+    chassis_id = chassis_data.get("id", {}).get("value", "N/A")
+    system_name = chassis_data.get("descr", "N/A").split()[0]
+    management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"])).split()[0]
+
+    port_data = eth0_data.get("port", {})
+    port_id = port_data.get("id", {}).get("value", "N/A")
+    port_descr = port_data.get("descr", "N/A")
+    auto_neg_current = port_data.get("auto-negotiation", {}).get("current", "N/A").split()[0]
+    auto_supported = port_data.get("auto-negotiation", {}).get("supported", "N/A")
+    auto_enabled = port_data.get("auto-negotiation", {}).get("enabled", "N/A")
+
+    # Pobranie listy dostępnych trybów połączenia
+    #advertised_modes = port_data.get("auto-negotiation", {}).get("advertised", [])
+    #available_modes = ", ".join([f"{mode.get('type', 'Unknown')} ({'HD' if mode.get('hd', False) else ''} {'FD' if mode.get('fd', False) else ''})".strip() for mode in advertised_modes])
+    # Pobranie listy dostępnych trybów połączenia
+    advertised_modes = port_data.get("auto-negotiation", {}).get("advertised", [])
+    # Sprawdzenie, czy `advertised_modes` jest listą czy stringiem
+    available_modes = []
+    if isinstance(advertised_modes, list):  # Jeśli to lista, przetwarzamy jak wcześniej
+        for mode in advertised_modes:
+            mode_type = mode.get("type", "Unknown")
+            hd = "HD" if mode.get("hd", False) else ""
+            fd = "FD" if mode.get("fd", False) else ""
+            available_modes.append(f"{mode_type}/{hd}/{fd}".strip())
+    elif isinstance(advertised_modes, str):  # Jeśli to string, zapisujemy go bezpośrednio
+        available_modes.append(advertised_modes)
+    # Konwersja listy na string do zapisu w Redis
+    available_modes_str = ",".join(available_modes)
+
+    vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
+
+    power_supported = port_data.get("power", {}).get("supported", "N/A")
+    power_enabled = port_data.get("power", {}).get("enabled", "N/A")
+
+    lldp_med = eth0_data.get("lldp-med", {})
+    device_type = lldp_med.get("device-type", "N/A")
+    capability = lldp_med.get("capability", {}).get("available", "N/A")
+
+    """
+    # Wyświetlenie pobranych danych
+    print(f"Chassis ID: {chassis_id}")
+    print(f"System Name: {system_name}")
+    print(f"Management IPs: {management_ip}")
+    print(f"Port ID: {port_id}")
+    print(f"Port Description: {port_descr}")
+    print(f"VLAN ID: {vlan_id}")
+    print(f"Power Supported: {power_supported}")
+    print(f"Power Enabled: {power_enabled}")
+    print(f"LLDP-MED Device Type: {device_type}")
+    print(f"LLDP-MED Capability: {capability}")
+    print(f"✅ Auto-Negotiation Supported: {auto_supported}")
+    print(f"✅ Auto-Negotiation Enabled: {auto_enabled}")
+    print(f"✅ Current Mode: {auto_neg_current}")
+    #print(f"✅ Available Modes: {available_modes_str}")
+    """
+
+    LLDP = {
+        "chassis_id": chassis_id,
+        "system_name": system_name,
+        "management_ips": management_ip,
+        "port_id": port_id,
+        "port_descr": port_descr,
+        "auto_neg_current": auto_neg_current,
+        "auto_supported": str(auto_supported),
+        "auto_enabled": str(auto_enabled),
+        "vlan_id": vlan_id,
+        "power_supported": str(power_supported),
+        "power_enabled": str(power_enabled),
+        "lldp_med_device_type": device_type,
+        "lldp_med_capability": str(capability),
+        "available_modes_str": available_modes_str
+    }
+
+    redis_db.hset('LLDP', mapping=LLDP)  # Przesłanie całego słownika do Redis
+  else:
+    hset_init_values()
+
+
+
+# Definiowanie przycisków
+button_up = Button(6)
+button_down = Button(19)
+button_left = Button(5)
+button_right = Button(26)
+
+# Inicjalizacja indeksu przewijania
+scroll_index = 0
+scroll_x = 0 # Nowa zmienna do przewijania poziomego
+max_lines = 3  # Ilość linii widocznych na ekranie
+data_lines = ["Loading..."]
+
+
+def update_scrolly(button):
+    global scroll_index, data_lines, max_lines
+    if len(data_lines) > max_lines:  # Zapewnia, że można przewijać tylko jeśli są dodatkowe linie
+        if button == button_up:
+            scroll_index = max(0, scroll_index - 1)  # Przewijanie w górę
+        elif button == button_down:
+            scroll_index = min(len(data_lines) - max_lines, scroll_index + 1)  # Przewijanie w dół
+
+
+
+# Funkcja do obsługi przewijania poziomego
+MAX_SCROLL_X = 1000  # Zwiększamy maksymalne przesunięcie
+def update_scroll_x(button):
+    global scroll_x
+    if button == button_left:
+        scroll_x = max(0, scroll_x - 20)  # Przewijanie w lewo
+    elif button == button_right:
+        scroll_x = min(MAX_SCROLL_X, scroll_x + 20)  # Przewijanie w prawo
+
+
+
+# Przypisanie funkcji do przycisków
+button_up.when_pressed = lambda: update_scrolly(button_up)
+button_down.when_pressed = lambda: update_scrolly(button_down)
+button_left.when_pressed = lambda: update_scroll_x(button_left)
+button_right.when_pressed = lambda: update_scroll_x(button_right)
 
 def serial_displays(**kwargs):
+    global data_lines
+    #font_size = 14
     if kwargs['serial_display_type'] == 'lcd_st7735':
-        from luma.core.interface.serial import spi
-        from luma.core.render import canvas
-        from luma.lcd.device import st7735
-        from PIL import ImageFont
-        from time import sleep
-
-    # Load default font.
-        #font = ImageFont.load_default()
-        font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', 15)
-    # Display width/height
-        width = 128
-        height = 128
-    # First define some constants to allow easy resizing of shapes.
+        #font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', font_size)
+        width, height = 128, 128
+        x = 0
         padding = 0
         top = padding
-        # bottom = height-padding
-    # Move left to right keeping track of the current x position for drawing shapes.
-        x = 0
         display_rotate = 0
+
         serial = spi(device=0, port=0, bus_speed_hz=8000000, transfer_size=4096, gpio_DC=25, gpio_RST=27)
+        device = st7735(serial)
+        device = st7735(serial, width=128, height=128, h_offset=1, v_offset=2, bgr=True, persist=False, rotate=display_rotate)
 
-        try:
-            device = st7735(serial)
-            device = st7735(serial, width=128, height=128, h_offset=1, v_offset=2, bgr=True, persist=False, rotate=display_rotate)
+        while True:
+            lldp = redis_db.hgetall('LLDP')
 
-            while True:
-                # get data from redis db
-                lldp = redis_db.hgetall('LLDP')
-                chassis = lldp['chassis']
-                descr = lldp['descr']
-                mac = lldp['mac']
-                port = lldp['port']
-                auto_negotiation = lldp['auto_negotiation']
-                vlan_id = lldp['vlan_id']
-                power_supported = lldp['power_supported']
-                power_enabled = lldp['power_enabled']
-                battery_power = redis_db.get('battery_power')
+            data_lines = [
+                f"System Name: {lldp.get('system_name', '-')}",
+                f"Chassis Id: {lldp.get('chassis_id', '-')}",
+                f"Port Id: {lldp.get('port_id', '-')}",
+                f"Descrption: {lldp.get('port_descr', '-')}",
+                f"VLAN Id: {lldp.get('vlan_id', '-')}",
+                f"Power Support: {lldp.get('power_supported', '-')}",
+                f"Power Enabled: {lldp.get('power_enabled', '-')}",
+                f"Current Mode: {lldp.get('auto_neg_current', '-')}",
+                f"Auto Support: {lldp.get('auto_supported', '-')}",
+                f"Auto Enable: {lldp.get('auto_enabled', '-')}",
+                f"Available Modes: {lldp.get('available_modes_str', '-')}",
+            ]
 
-                # Draw
-                with canvas(device) as draw:
-                    draw.text((x+38, top), str(descr) , font=font, fill="yellow")
-                    draw.text((x+1, top+15), 'Name', font=font, fill="lime")
-                    draw.text((x+40, top+15), str(chassis), font=font, fill="cyan")
 
-                    draw.text((x+1, top+30), 'Port',  font=font, fill="lime")
-                    draw.text((x+40, top+30), str(port),  font=font, fill="cyan")
+            visible_lines = data_lines[scroll_index:scroll_index + max_lines]
 
-                    draw.text((x+1, top+45), 'VLANid',  font=font, fill="lime")
-                    draw.text((x+56, top+45), str(vlan_id),  font=font, fill="cyan")
+            with canvas(device) as draw:
+                font_size = kwargs['font_size']
+                font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', font_size)
+                y_offset = 25  # Poczatkowa pozycja na ekranie
+                line_spacing = font_size + 1  # Odstep między liniami
 
-                    draw.text((x+1, top+60), 'PowerSup',  font=font, fill="lime")
-                    draw.text((x+72, top+60), str(power_supported),  font=font, fill="cyan")
+                # Statyczny wiersz dla baterii
+                if bool(config.get('use_ups_hat', False)) is True:
+                    battery_power = redis_db.get('battery_power')
+                    draw.text((x+1, 0), f"Batt. Power {battery_power}%", font=font, fill="yellow")
 
-                    draw.text((x+1, top+75), 'PowerEn',  font=font, fill="lime")
-                    draw.text((x+64, top+75), str(power_enabled),  font=font, fill="cyan")
+                # Wyświetlanie przewijanych danych z przesunięciem poziomym
+                for i, line in enumerate(visible_lines, start=0):
+                    label, value = line.split(": ")
+                    x_position = x+1 - scroll_x
+                    y_position = y_offset + ( line_spacing * 2 * i )
+                    draw.text((x_position, y_position), label, font=font, fill="lime")  # Nazwa
+                    draw.text((x_position, y_position + line_spacing), value, font=font, fill="cyan")  # Wartość
 
-                    draw.text((x+1, top+90), 'mode',  font=font, fill="lime")
-                    draw.text((x+40, top+90), str(auto_negotiation),  font=font, fill="cyan")
-                    if bool(config['use_ups_hat']) is True:
-                      draw.text((x+1, top+115), 'Power', font=font, fill="lime")
-                      draw.text((x+42, top+115), str(battery_power)+'%',  font=font, fill="cyan")
-                sleep(1/kwargs['serial_display_refresh_rate'])
-        except Exception as err:
-            print(err)
+            sleep(1/kwargs['serial_display_refresh_rate'])
+
 
 
 def threading_function(function_name, **kwargs):
-    import threading
+
     t = threading.Thread(target=function_name, name=function_name, kwargs=kwargs)
     t.daemon = True
     t.start()
 
 
 def db_connect(dbhost, dbnum):
-    import redis
-    import sys
-    from systemd import journal
 
     try:
         redis_db = redis.StrictRedis(host=dbhost, port=6379, db=str(dbnum), charset="utf-8", decode_responses=True)
@@ -156,11 +267,9 @@ def db_connect(dbhost, dbnum):
 
 
 def config_load(path_to_config):
-    import sys
-    from systemd import journal
 
     try:
-        import tomllib
+
         with open(path_to_config, "rb") as file:
             config_toml = tomllib.load(file)
         return config_toml
@@ -186,18 +295,15 @@ def ups_hat():
 
 
 def lldpd():
-  from time import sleep
+
   while True:
     lldp()
-    sleep(1)
+    sleep(2)
 
 
 def main():
-    from gpiozero.pins.rpigpio import RPiGPIOFactory
+
     factory = RPiGPIOFactory
-    from gpiozero import Button
-    from signal import pause
-    import sys
 
     button = Button(21, hold_time=5)
 
@@ -213,7 +319,7 @@ def main():
     global config
     config = config_full['setup']
 
-    lldp()
+    hset_init_values()
 
     if bool(config['use_ups_hat']) is True:
         threading_function(ups_hat)
@@ -238,4 +344,3 @@ if __name__ == '__main__':
         print('')
         print('# RPiNT is stopped #')
     except Exception as err:
-        print(err)
