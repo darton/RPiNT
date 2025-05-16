@@ -7,3 +7,4 @@ serial_display_type = "lcd_st7735"
 serial_type = "spi"
 serial_display_rotate = 0
 serial_display_refresh_rate = 5
+font_size = 14
