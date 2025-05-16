@@ -147,33 +147,31 @@ def lldp():
   else:
     hset_init_values()
 
-
-
-# Definiowanie przycisków
+# Buttons
 button_up = Button(6)
 button_down = Button(19)
 button_left = Button(5)
 button_right = Button(26)
 
-# Inicjalizacja indeksu przewijania
+# Initialization of the scrolling index"
 scroll_index = 0
-scroll_x = 0 # Nowa zmienna do przewijania poziomego
-max_lines = 3  # Ilość linii widocznych na ekranie
+scroll_x = 0 # 
+max_lines = 3  # Number of lines visible on the screen
 data_lines = ["Loading..."]
 
-
+# Function for handling vertical scrolling
 def update_scrolly(button):
     global scroll_index, data_lines, max_lines
-    if len(data_lines) > max_lines:  # Zapewnia, że można przewijać tylko jeśli są dodatkowe linie
+    if len(data_lines) > max_lines:  # Ensures that scrolling is possible only if there are additional lines.
         if button == button_up:
-            scroll_index = max(0, scroll_index - 1)  # Przewijanie w górę
+            scroll_index = max(0, scroll_index - 1)  # Scrolling up
         elif button == button_down:
-            scroll_index = min(len(data_lines) - max_lines, scroll_index + 1)  # Przewijanie w dół
+            scroll_index = min(len(data_lines) - max_lines, scroll_index + 1)  # Scrolling down
 
 
 
-# Funkcja do obsługi przewijania poziomego
-MAX_SCROLL_X = 1000  # Zwiększamy maksymalne przesunięcie
+# Function for handling horizontal scrolling
+MAX_SCROLL_X = 1000 
 def update_scroll_x(button):
     global scroll_x
     if button == button_left:
@@ -227,15 +225,15 @@ def serial_displays(**kwargs):
             with canvas(device) as draw:
                 font_size = kwargs['font_size']
                 font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', font_size)
-                y_offset = 25  # Poczatkowa pozycja na ekranie
+                y_offset = 25  # "Initial position on the screen.
                 line_spacing = font_size + 1  # Odstep między liniami
 
-                # Statyczny wiersz dla baterii
+                # "Static row for the battery power indicator.
                 if bool(config.get('use_ups_hat', False)) is True:
                     battery_power = redis_db.get('battery_power')
                     draw.text((x+1, 0), f"Batt. Power {battery_power}%", font=font, fill="yellow")
 
-                # Wyświetlanie przewijanych danych z przesunięciem poziomym
+                # Displaying scrolled data with horizontal offset.
                 for i, line in enumerate(visible_lines, start=0):
                     label, value = line.split(": ")
                     x_position = x+1 - scroll_x
