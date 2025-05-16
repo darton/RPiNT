@@ -189,9 +189,7 @@ button_right.when_pressed = lambda: update_scroll_x(button_right)
 
 def serial_displays(**kwargs):
     global data_lines
-    #font_size = 14
     if kwargs['serial_display_type'] == 'lcd_st7735':
-        #font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', font_size)
         width, height = 128, 128
         x = 0
         padding = 0
