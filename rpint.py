@@ -143,7 +143,7 @@ def lldp():
         "available_modes_str": available_modes_str
     }
 
-    redis_db.hset('LLDP', mapping=LLDP)  # Przesłanie całego słownika do Redis
+    redis_db.hset('LLDP', mapping=LLDP) 
   else:
     hset_init_values()
 
