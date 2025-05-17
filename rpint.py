@@ -13,6 +13,7 @@
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 
+import os
 import json
 import subprocess
 import pprint
@@ -168,6 +169,7 @@ def update_scroll_x(button):
 
 def serial_displays(**kwargs):
     global data_lines
+    FONT_PATH = os.getenv('RPINT_FONT_PATH', '/home/pi/scripts/RPiNT/FreePixel.ttf')
     if kwargs['serial_display_type'] == 'lcd_st7735':
         width, height = 128, 128
         x = 0
@@ -223,7 +225,7 @@ def serial_displays(**kwargs):
 
             with canvas(device) as draw:
                 font_size = kwargs['font_size']
-                font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', font_size)
+                font = ImageFont.truetype(FONT_PATH, font_size)
                 y_offset = 25  # "Initial position on the screen.
                 line_spacing = font_size + 1  # Line spacing.
 
@@ -305,6 +307,8 @@ if __name__ == '__main__':
     print('# RPiNT is running #')
     print('')
 
+    CONFIG_PATH = os.getenv('RPINT_CONFIG_PATH', '/home/pi/scripts/RPiNT/rpint.toml')
+
     factory = RPiGPIOFactory
 
     button = Button(21, hold_time=5)
@@ -322,7 +326,7 @@ if __name__ == '__main__':
         redis_db = db_connect('localhost', 0)
         redis_db.flushdb()
 
-        config_full = config_load('/home/pi/scripts/RPiNT/rpint.toml')
+        config_full = config_load(CONFIG_PATH)
         config = config_full['setup']
 
         hset_init_values()
