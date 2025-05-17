@@ -15,6 +15,7 @@
 
 import os
 import json
+import signal
 import subprocess
 import pprint
 import threading
@@ -63,14 +64,20 @@ def hset_init_values():
 
 def lldp():
   command = ('lldpcli show neighbors details -f json')
-  p = subprocess.Popen(command, universal_newlines=True,
-  shell=True, stdout=subprocess.PIPE,
-  stderr=subprocess.PIPE)
-  text = p.stdout.read()
-  retcode = p.wait()
-  lldp = json.loads(text)
-  lldp_len = len(lldp['lldp'])
-  #pprint.pprint(lldp)
+  try:
+      result = subprocess.run(
+          command, shell=True, text=True, capture_output=True, check=True
+      )
+      lldp = json.loads(result.stdout)
+      lldp_len = len(lldp['lldp'])
+  except subprocess.CalledProcessError as e:
+      journal.send(f"LLDP command failed: {e}")
+      hset_init_values()
+      return
+  except json.JSONDecodeError as e:
+      journal.send(f"Failed to parse LLDP JSON: {e}")
+      hset_init_values()
+      return
 
   if lldp_len != 0:
 
@@ -179,7 +186,7 @@ def serial_displays(**kwargs):
         device = st7735(serial)
         device = st7735(serial, width=128, height=128, h_offset=1, v_offset=2, bgr=True, persist=False, rotate=display_rotate)
 
-        while True:
+        while not stop_threads.is_set():
             lldp = redis_db.hgetall('LLDP')
             data_lines = []
             if config.get("show_chassis_id", False) is True:
@@ -283,7 +290,7 @@ def ups_hat():
     V_FULL = 4.2  # Fully charged battery voltage
     V_EMPTY = 3.0  # Fully discharged battery voltage
 
-    while True:
+    while not stop_threads.is_set():
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
         shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
         current = ina219.getCurrent_mA()                   # current in mA
@@ -295,15 +302,27 @@ def ups_hat():
         sleep(1)
 
 
+
 def lldpd():
-  while True:
+  while not stop_threads.is_set():
     lldp()
     sleep(2)
 
 
 
+def signal_handler(sig, frame):
+    print("Received termination signal, stopping threads...")
+    stop_threads.set()
+    sys.exit(0)
+
+
+
 # --- Main program ---
 if __name__ == '__main__':
+
+    # Register SIGTERM signal handler for systemd shutdown
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler) # Handle Ctrl+C for local testing
 
     print('')
     print('# RPiNT is running #')
@@ -333,6 +352,8 @@ if __name__ == '__main__':
 
         hset_init_values()
 
+        stop_threads = threading.Event()
+
         if bool(config['use_ups_hat']) is True:
             threading_function(ups_hat)
 
@@ -347,8 +368,10 @@ if __name__ == '__main__':
         button.when_held = shutdown
         pause()
     except KeyboardInterrupt:
+        stop_threads.set()
         print('')
         print('RPiNT is stopped #')
     except Exception as err:
+        stop_threads.set()
         print(f'Main Function Error: {err}')
 
