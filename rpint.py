@@ -173,8 +173,6 @@ def serial_displays(**kwargs):
     if kwargs['serial_display_type'] == 'lcd_st7735':
         width, height = 128, 128
         x = 0
-        padding = 0
-        top = padding
         display_rotate = 0
 
         serial = spi(device=0, port=0, bus_speed_hz=8000000, transfer_size=4096, gpio_DC=25, gpio_RST=27)
