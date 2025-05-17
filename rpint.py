@@ -268,8 +268,12 @@ def config_load(path_to_config):
         with open(path_to_config, "rb") as file:
             config_toml = tomllib.load(file)
         return config_toml
-    except:
+    except FileNotFoundError:
         error = f"Can't load RPiNT config file: {path_to_config}"
+        journal.send(error)
+        sys.exit(error)
+    except tomllib.TOMLDecodeError:
+        error = f"Invalid TOML syntax in config file: {path_to_config}"
         journal.send(error)
         sys.exit(error)
 
@@ -349,4 +353,3 @@ if __name__ == '__main__':
         print('RPiNT is stopped #')
     except Exception as err:
         print(f'Main Function Error: {err}')
-
