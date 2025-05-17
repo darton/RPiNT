@@ -292,43 +292,17 @@ def lldpd():
     sleep(2)
 
 
-def main():
-    button = Button(21, hold_time=5)
+
+# --- Main program ---
+if __name__ == '__main__':
 
     print('')
     print('# RPiNT is running #')
     print('')
 
-    global redis_db
-    redis_db = db_connect('localhost', 0)
-    redis_db.flushdb()
-
-    config_full = config_load('/home/pi/scripts/RPiNT/rpint.toml')
-    global config
-    config = config_full['setup']
-
-    hset_init_values()
-
-    if bool(config['use_ups_hat']) is True:
-        threading_function(ups_hat)
-
-    if bool(config['use_serial_display']) is True:
-        threading_function(serial_displays, **config)
-
-    if bool(config['auto_lldp_read']) is True:
-        threading_function(lldpd)
-    else:
-        button.when_pressed = lldp
-
-    button.when_held = shutdown
-
-    pause()
-
-
-
-# --- Main program ---
-if __name__ == '__main__':
     factory = RPiGPIOFactory
+
+    button = Button(21, hold_time=5)
     button_up = Button(6)
     button_down = Button(19)
     button_left = Button(5)
@@ -340,9 +314,30 @@ if __name__ == '__main__':
     button_right.when_pressed = lambda: update_scroll_x(button_right)
 
     try:
-        main()
+        redis_db = db_connect('localhost', 0)
+        redis_db.flushdb()
+
+        config_full = config_load('/home/pi/scripts/RPiNT/rpint.toml')
+        config = config_full['setup']
+
+        hset_init_values()
+
+        if bool(config['use_ups_hat']) is True:
+            threading_function(ups_hat)
+
+        if bool(config['use_serial_display']) is True:
+            threading_function(serial_displays, **config)
+
+        if bool(config['auto_lldp_read']) is True:
+            threading_function(lldpd)
+        else:
+            button.when_pressed = lldp
+
+        button.when_held = shutdown
+        pause()
     except KeyboardInterrupt:
         print('')
         print('RPiNT is stopped #')
     except Exception as err:
         print(f'Main Function Error: {err}')
+
