@@ -63,10 +63,10 @@ def hset_init_values():
 
 
 def lldp():
-  command = ('lldpcli show neighbors details -f json')
+  command = ['lldpcli', 'show', 'neighbors', 'details', '-f', 'json']
   try:
       result = subprocess.run(
-          command, shell=True, text=True, capture_output=True, check=True
+          command, text=True, capture_output=True, check=True
       )
       lldp = json.loads(result.stdout)
       lldp_len = len(lldp['lldp'])
