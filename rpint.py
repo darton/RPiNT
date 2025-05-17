@@ -61,11 +61,11 @@ def lldp():
 
     eth0_data = lldp.get("lldp", {}).get("interface", {}).get("eth0", {})
 
-    # Pobranie dynamicznego Chassis ID (pierwszy dostępny klucz)
+    # Retrieving the dynamic Chassis ID (first available key)
     chassis_key = next(iter(eth0_data.get("chassis", {})), "Unknown")
     chassis_data = eth0_data.get("chassis", {}).get(chassis_key, {})
 
-    # Pobranie kluczowych danych
+    # Retrieving key data.
     chassis_id = chassis_data.get("id", {}).get("value", "N/A")
     system_name = chassis_data.get("descr", "N/A").split()[0]
     management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"])).split()[0]
@@ -77,23 +77,24 @@ def lldp():
     auto_supported = port_data.get("auto-negotiation", {}).get("supported", "N/A")
     auto_enabled = port_data.get("auto-negotiation", {}).get("enabled", "N/A")
 
-    # Pobranie listy dostępnych trybów połączenia
+    # Retrieving the list of available connection modes.
     #advertised_modes = port_data.get("auto-negotiation", {}).get("advertised", [])
     #available_modes = ", ".join([f"{mode.get('type', 'Unknown')} ({'HD' if mode.get('hd', False) else ''} {'FD' if mode.get('fd', False) else ''})".strip() for mode in advertised_modes])
-    # Pobranie listy dostępnych trybów połączenia
+    # Retrieving the list of available connection modes.
     advertised_modes = port_data.get("auto-negotiation", {}).get("advertised", [])
-    # Sprawdzenie, czy `advertised_modes` jest listą czy stringiem
+    # Checking whether advertised_modes is a list or a string.
     available_modes = []
-    if isinstance(advertised_modes, list):  # Jeśli to lista, przetwarzamy jak wcześniej
+    if isinstance(advertised_modes, list):  # If it's a list, we process it as before.
         for mode in advertised_modes:
             mode_type = mode.get("type", "Unknown")
             hd = "HD" if mode.get("hd", False) else ""
             fd = "FD" if mode.get("fd", False) else ""
             available_modes.append(f"{mode_type}/{hd}/{fd}".strip())
-    elif isinstance(advertised_modes, str):  # Jeśli to string, zapisujemy go bezpośrednio
+    elif isinstance(advertised_modes, str):  # If it's a string, we save it directly.
         available_modes.append(advertised_modes)
-    # Konwersja listy na string do zapisu w Redis
+    # Conversion of a list to a string for storage in Redis.
     available_modes_str = ",".join(available_modes)
+    
     vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
     power_supported = port_data.get("power", {}).get("supported", "N/A")
     power_enabled = port_data.get("power", {}).get("enabled", "N/A")
@@ -102,7 +103,7 @@ def lldp():
     capability = lldp_med.get("capability", {}).get("available", "N/A")
 
     """
-    # Wyświetlenie pobranych danych
+    # Displaying the retrieved data
     print(f"Chassis ID: {chassis_id}")
     print(f"System Name: {system_name}")
     print(f"Management IPs: {management_ip}")
@@ -169,9 +170,9 @@ MAX_SCROLL_X = 1000
 def update_scroll_x(button):
     global scroll_x
     if button == button_left:
-        scroll_x = max(0, scroll_x - 20)  # Przewijanie w lewo
+        scroll_x = max(0, scroll_x - 20)  # Scrolling to the left.
     elif button == button_right:
-        scroll_x = min(MAX_SCROLL_X, scroll_x + 20)  # Przewijanie w prawo
+        scroll_x = min(MAX_SCROLL_X, scroll_x + 20)  # Scrolling to the right.
 
 
 
@@ -218,7 +219,7 @@ def serial_displays(**kwargs):
                 font_size = kwargs['font_size']
                 font = ImageFont.truetype('/home/pi/scripts/RPiNT/FreePixel.ttf', font_size)
                 y_offset = 25  # "Initial position on the screen.
-                line_spacing = font_size + 1  # Odstep między liniami
+                line_spacing = font_size + 1  # Line spacing.
 
                 # "Static row for the battery power indicator.
                 if bool(config.get('use_ups_hat', False)) is True:
@@ -230,8 +231,8 @@ def serial_displays(**kwargs):
                     label, value = line.split(": ")
                     x_position = x+1 - scroll_x
                     y_position = y_offset + ( line_spacing * 2 * i )
-                    draw.text((x_position, y_position), label, font=font, fill="lime")  # Nazwa
-                    draw.text((x_position, y_position + line_spacing), value, font=font, fill="cyan")  # Wartość
+                    draw.text((x_position, y_position), label, font=font, fill="lime")  # Name
+                    draw.text((x_position, y_position + line_spacing), value, font=font, fill="cyan")  # Value
 
             sleep(1/kwargs['serial_display_refresh_rate'])
 
