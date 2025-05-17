@@ -63,14 +63,20 @@ def hset_init_values():
 
 def lldp():
   command = ('lldpcli show neighbors details -f json')
-  p = subprocess.Popen(command, universal_newlines=True,
-  shell=True, stdout=subprocess.PIPE,
-  stderr=subprocess.PIPE)
-  text = p.stdout.read()
-  retcode = p.wait()
-  lldp = json.loads(text)
-  lldp_len = len(lldp['lldp'])
-  #pprint.pprint(lldp)
+  try:
+      result = subprocess.run(
+          command, shell=True, text=True, capture_output=True, check=True
+      )
+      lldp = json.loads(result.stdout)
+      lldp_len = len(lldp['lldp'])
+  except subprocess.CalledProcessError as e:
+      journal.send(f"LLDP command failed: {e}")
+      hset_init_values()
+      return
+  except json.JSONDecodeError as e:
+      journal.send(f"Failed to parse LLDP JSON: {e}")
+      hset_init_values()
+      return
 
   if lldp_len != 0:
 
