@@ -47,7 +47,7 @@ Reading lldp data is done automatically after connecting UTP cable to the device
 
 auto_lldp_read = false
 
-To read lldp data, connect the UTP cable to the device, wait a few seconds, press "key 1" a few seconds. If there is no reading, try again.
+To read lldp data, connect the UTP cable to the device, wait a few seconds, press "KEY 1" a few seconds. If there is no reading, try again.
 
 
 ### Shutdown
