@@ -191,7 +191,7 @@ def serial_displays(**kwargs):
                 data_lines.append(f"Port Id: {lldp.get('port_id', '-')}")
 
             if config.get("show_vlan_id", False) is True:
-                data_lines.append(f"+ VLAN Id: {lldp.get('vlan_id', '-')}")
+                data_lines.append(f"VLAN Id: {lldp.get('vlan_id', '-')}")
 
             if config.get("show_port_descr", False) is True:
                 data_lines.append(f"Description: {lldp.get('port_descr', '-')}")
