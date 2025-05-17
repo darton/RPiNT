@@ -94,7 +94,7 @@ def lldp():
         available_modes.append(advertised_modes)
     # Conversion of a list to a string for storage in Redis.
     available_modes_str = ",".join(available_modes)
-    
+
     vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
     power_supported = port_data.get("power", {}).get("supported", "N/A")
     power_enabled = port_data.get("power", {}).get("enabled", "N/A")
@@ -102,23 +102,6 @@ def lldp():
     device_type = lldp_med.get("device-type", "N/A")
     capability = lldp_med.get("capability", {}).get("available", "N/A")
 
-    """
-    # Displaying the retrieved data
-    print(f"Chassis ID: {chassis_id}")
-    print(f"System Name: {system_name}")
-    print(f"Management IPs: {management_ip}")
-    print(f"Port ID: {port_id}")
-    print(f"Port Description: {port_descr}")
-    print(f"VLAN ID: {vlan_id}")
-    print(f"Power Supported: {power_supported}")
-    print(f"Power Enabled: {power_enabled}")
-    print(f"LLDP-MED Device Type: {device_type}")
-    print(f"LLDP-MED Capability: {capability}")
-    print(f"Auto-Negotiation Supported: {auto_supported}")
-    print(f"Auto-Negotiation Enabled: {auto_enabled}")
-    print(f"Current Mode: {auto_neg_current}")
-    #print(f"Available Modes: {available_modes_str}")
-    """
 
     LLDP = {
         "chassis_id": chassis_id,
@@ -137,7 +120,7 @@ def lldp():
         "lldp_med_capability": str(capability)
     }
 
-    redis_db.hset('LLDP', mapping=LLDP) 
+    redis_db.hset('LLDP', mapping=LLDP)
   else:
     hset_init_values()
 
@@ -150,9 +133,9 @@ button_right = Button(26)
 
 # Initialization of the scrolling index"
 scroll_index = 0
-scroll_x = 0 # 
+scroll_x = 0 #
 max_lines = 3  # Number of lines visible on the screen
-data_lines = ["Loading..."]
+data_lines = []
 
 # Function for handling vertical scrolling
 def update_scrolly(button):
@@ -166,7 +149,7 @@ def update_scrolly(button):
 
 
 # Function for handling horizontal scrolling
-MAX_SCROLL_X = 1000 
+MAX_SCROLL_X = 1000
 def update_scroll_x(button):
     global scroll_x
     if button == button_left:
@@ -198,20 +181,42 @@ def serial_displays(**kwargs):
 
         while True:
             lldp = redis_db.hgetall('LLDP')
+            if config.get("show_chassis_id", False) is True:
+                data_lines.append(f"Chassis Id: {lldp.get('chassis_id', '-')}")
 
-            data_lines = [
-                f"System Name: {lldp.get('system_name', '-')}",
-                f"Chassis Id: {lldp.get('chassis_id', '-')}",
-                f"Port Id: {lldp.get('port_id', '-')}",
-                f"VLAN Id: {lldp.get('vlan_id', '-')}",
-                f"Descrption: {lldp.get('port_descr', '-')}",
-                f"Power Support: {lldp.get('power_supported', '-')}",
-                f"Power Enabled: {lldp.get('power_enabled', '-')}",
-                f"Current Mode: {lldp.get('auto_neg_current', '-')}",
-                f"Auto Support: {lldp.get('auto_supported', '-')}",
-                f"Auto Enable: {lldp.get('auto_enabled', '-')}",
-                f"Available Modes: {lldp.get('available_modes_str', '-')}",
-            ]
+            if config.get("show_name", False) is True:
+                data_lines.append(f"System Name: {lldp.get('system_name', '-')}")
+
+            if config.get("show_port_id", False) is True:
+                data_lines.append(f"Port Id: {lldp.get('port_id', '-')}")
+
+            if config.get("show_vlan_id", False) is True:
+                data_lines.append(f"+ VLAN Id: {lldp.get('vlan_id', '-')}")
+
+            if config.get("show_port_descr", False) is True:
+                data_lines.append(f"Description: {lldp.get('port_descr', '-')}")
+
+            if config.get("show_auto_neg_current", False) is True:
+                data_lines.append(f"Current Mode: {lldp.get('auto_neg_current', '-')}")
+
+            if config.get("show_auto_supported", False) is True:
+                data_lines.append(f"Auto Support: {lldp.get('auto_supported', '-')}")
+
+            if config.get("show_auto_enabled", False) is True:
+                data_lines.append(f"Auto Enable: {lldp.get('auto_enabled', '-')}")
+
+            if config.get("show_available_modes_str", False) is True:
+                data_lines.append(f"Available Modes: {lldp.get('available_modes_str', '-')}")
+
+            if config.get("show_power_supported", False) is True:
+                data_lines.append(f"Power Support: {lldp.get('power_supported', '-')}")
+
+            if config.get("show_power_enabled", False) is True:
+                data_lines.append(f"Power Enabled: {lldp.get('power_enabled', '-')}")
+
+            if config.get("show_device_type", False) is True:
+                data_lines.append(f"Current Mode: {lldp.get('auto_neg_current', '-')}")
+
 
             visible_lines = data_lines[scroll_index:scroll_index + max_lines]
 
@@ -329,3 +334,4 @@ if __name__ == '__main__':
         print('RPiNT is stopped #')
     except Exception as err:
         print(f'Main Function Error: {err}')
+
