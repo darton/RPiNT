@@ -32,18 +32,27 @@ from signal import pause
 from subprocess import check_call
 
 
+
 # --- Functions ---
 def shutdown():
     check_call(['sudo', 'poweroff'])
 
 
 def hset_init_values():
-    redis_db.hset('LLDP', 'chassis', '--')
-    redis_db.hset('LLDP', 'port', '--')
-    redis_db.hset('LLDP', 'auto_negotiation', '--')
+    redis_db.hset('LLDP', 'chassis_id', '--')
+    redis_db.hset('LLDP', 'chassis_description', '--')
+    redis_db.hset('LLDP', 'management_ip', '--')
+    redis_db.hset('LLDP', 'port_id', '--')
+    redis_db.hset('LLDP', 'port_descr', '--')
+    redis_db.hset('LLDP', 'auto_neg_current', '--')
+    redis_db.hset('LLDP', 'auto_supported', '--')
+    redis_db.hset('LLDP', 'auto_enabled', '--')
+    redis_db.hset('LLDP', 'available_modes_str', '--')
     redis_db.hset('LLDP', 'vlan_id', '--')
     redis_db.hset('LLDP', 'power_supported', '--')
     redis_db.hset('LLDP', 'power_enabled', '--')
+    redis_db.hset('LLDP', 'lldp_med_device_type', '--')
+    redis_db.hset('LLDP', 'lldp_med_capability', '--')
 
 
 def lldp():
@@ -64,16 +73,15 @@ def lldp():
     # Retrieving the dynamic Chassis ID (first available key)
     chassis_key = next(iter(eth0_data.get("chassis", {})), "Unknown")
     chassis_data = eth0_data.get("chassis", {}).get(chassis_key, {})
-
-    # Retrieving key data.
-    chassis_id = chassis_data.get("id", {}).get("value", "N/A")
-    system_name = chassis_data.get("descr", "N/A").split()[0]
-    management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"])).split()[0]
+    # Retrieving key data
+    chassis_id = chassis_data.get("value", "N/A")
+    chassis_description = eth0_data.get("chassis", {}).get("descr", "N/A")
+    management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"]))
 
     port_data = eth0_data.get("port", {})
     port_id = port_data.get("id", {}).get("value", "N/A")
     port_descr = port_data.get("descr", "N/A")
-    auto_neg_current = port_data.get("auto-negotiation", {}).get("current", "N/A").split()[0]
+    auto_neg_current = port_data.get("auto-negotiation", {}).get("current", "N/A")
     auto_supported = port_data.get("auto-negotiation", {}).get("supported", "N/A")
     auto_enabled = port_data.get("auto-negotiation", {}).get("enabled", "N/A")
 
@@ -106,7 +114,7 @@ def lldp():
 
     LLDP = {
         "chassis_id": chassis_id,
-        "system_name": system_name,
+        "chassis_description": chassis_description,
         "management_ips": management_ip,
         "port_id": port_id,
         "port_descr": port_descr,
@@ -126,20 +134,12 @@ def lldp():
     hset_init_values()
 
 
-# Buttons
-button_up = Button(6)
-button_down = Button(19)
-button_left = Button(5)
-button_right = Button(26)
 
 # Initialization of the scrolling index
 scroll_index = 0
 scroll_x = 0
 max_lines = 3  # Number of lines visible on the screen
-
-
 # Function for handling vertical scrolling
-
 def update_scrolly(button):
     global scroll_index, data_lines, max_lines
     if len(data_lines) > max_lines:  # Ensures that scrolling is possible only if there are additional lines.
@@ -161,13 +161,6 @@ def update_scroll_x(button):
 
 
 
-# Przypisanie funkcji do przycisków
-button_up.when_pressed = lambda: update_scrolly(button_up)
-button_down.when_pressed = lambda: update_scrolly(button_down)
-button_left.when_pressed = lambda: update_scroll_x(button_left)
-button_right.when_pressed = lambda: update_scroll_x(button_right)
-
-
 def serial_displays(**kwargs):
     global data_lines
     if kwargs['serial_display_type'] == 'lcd_st7735':
@@ -185,40 +178,40 @@ def serial_displays(**kwargs):
             lldp = redis_db.hgetall('LLDP')
             data_lines = []
             if config.get("show_chassis_id", False) is True:
-                data_lines.append(f"Chassis Id: {lldp.get('chassis_id', '-')}")
+                data_lines.append(f"CHASSIS ID: {lldp.get('chassis_id', '-')}")
 
-            if config.get("show_name", False) is True:
-                data_lines.append(f"System Name: {lldp.get('system_name', '-')}")
+            if config.get("show_chassis_description", False) is True:
+                data_lines.append(f"CHASSIS DESCRIPTION: {lldp.get('chassis_description', '-')}")
 
             if config.get("show_port_id", False) is True:
-                data_lines.append(f"Port Id: {lldp.get('port_id', '-')}")
+                data_lines.append(f"PORT ID: {lldp.get('port_id', '-')}")
 
             if config.get("show_vlan_id", False) is True:
                 data_lines.append(f"VLAN ID: {lldp.get('vlan_id', '-')}")
 
             if config.get("show_port_descr", False) is True:
-                data_lines.append(f"Description: {lldp.get('port_descr', '-')}")
+                data_lines.append(f"PORT DESCRIPTION: {lldp.get('port_descr', '-')}")
 
             if config.get("show_auto_neg_current", False) is True:
-                data_lines.append(f"Current Mode: {lldp.get('auto_neg_current', '-')}")
+                data_lines.append(f"CURRENT MODE: {lldp.get('auto_neg_current', '-')}")
 
             if config.get("show_auto_supported", False) is True:
-                data_lines.append(f"Auto Support: {lldp.get('auto_supported', '-')}")
+                data_lines.append(f"AUTO SUPPORT: {lldp.get('auto_supported', '-')}")
 
             if config.get("show_auto_enabled", False) is True:
-                data_lines.append(f"Auto Enable: {lldp.get('auto_enabled', '-')}")
+                data_lines.append(f"AUTO ENABLE: {lldp.get('auto_enabled', '-')}")
 
             if config.get("show_available_modes_str", False) is True:
-                data_lines.append(f"Available Modes: {lldp.get('available_modes_str', '-')}")
+                data_lines.append(f"AVAILABLE MODES: {lldp.get('available_modes_str', '-')}")
 
             if config.get("show_power_supported", False) is True:
-                data_lines.append(f"Power Support: {lldp.get('power_supported', '-')}")
+                data_lines.append(f"POWER SUPPORT: {lldp.get('power_supported', '-')}")
 
             if config.get("show_power_enabled", False) is True:
-                data_lines.append(f"Power Enabled: {lldp.get('power_enabled', '-')}")
+                data_lines.append(f"POWER ENABLED: {lldp.get('power_enabled', '-')}")
 
             if config.get("show_device_type", False) is True:
-                data_lines.append(f"Current Mode: {lldp.get('auto_neg_current', '-')}")
+                data_lines.append(f"DEVICE TYPE: {lldp.get('lldp_med_device_type', '-')}")
 
 
             visible_lines = data_lines[scroll_index:scroll_index + max_lines]
@@ -293,7 +286,6 @@ def ups_hat():
         sleep(1)
 
 
-
 def lldpd():
   while True:
     lldp()
@@ -301,7 +293,6 @@ def lldpd():
 
 
 def main():
-    factory = RPiGPIOFactory
     button = Button(21, hold_time=5)
 
     print('')
@@ -330,11 +321,26 @@ def main():
         button.when_pressed = lldp
 
     button.when_held = shutdown
+
+    # Przypisanie funkcji do przycisków
+
     pause()
+
 
 
 # --- Main program ---
 if __name__ == '__main__':
+    factory = RPiGPIOFactory
+    button_up = Button(6)
+    button_down = Button(19)
+    button_left = Button(5)
+    button_right = Button(26)
+
+    button_up.when_pressed = lambda: update_scrolly(button_up)
+    button_down.when_pressed = lambda: update_scrolly(button_down)
+    button_left.when_pressed = lambda: update_scroll_x(button_left)
+    button_right.when_pressed = lambda: update_scroll_x(button_right)
+
     try:
         main()
     except KeyboardInterrupt:
@@ -342,4 +348,3 @@ if __name__ == '__main__':
         print('RPiNT is stopped #')
     except Exception as err:
         print(f'Main Function Error: {err}')
-
