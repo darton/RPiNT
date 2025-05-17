@@ -98,6 +98,7 @@ def lldp():
     vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
     power_supported = port_data.get("power", {}).get("supported", "N/A")
     power_enabled = port_data.get("power", {}).get("enabled", "N/A")
+
     lldp_med = eth0_data.get("lldp-med", {})
     device_type = lldp_med.get("device-type", "N/A")
     capability = lldp_med.get("capability", {}).get("available", "N/A")
@@ -131,13 +132,14 @@ button_down = Button(19)
 button_left = Button(5)
 button_right = Button(26)
 
-# Initialization of the scrolling index"
+# Initialization of the scrolling index
 scroll_index = 0
-scroll_x = 0 #
+scroll_x = 0
 max_lines = 3  # Number of lines visible on the screen
-data_lines = []
+
 
 # Function for handling vertical scrolling
+
 def update_scrolly(button):
     global scroll_index, data_lines, max_lines
     if len(data_lines) > max_lines:  # Ensures that scrolling is possible only if there are additional lines.
@@ -181,6 +183,7 @@ def serial_displays(**kwargs):
 
         while True:
             lldp = redis_db.hgetall('LLDP')
+            data_lines = []
             if config.get("show_chassis_id", False) is True:
                 data_lines.append(f"Chassis Id: {lldp.get('chassis_id', '-')}")
 
@@ -191,7 +194,7 @@ def serial_displays(**kwargs):
                 data_lines.append(f"Port Id: {lldp.get('port_id', '-')}")
 
             if config.get("show_vlan_id", False) is True:
-                data_lines.append(f"VLAN Id: {lldp.get('vlan_id', '-')}")
+                data_lines.append(f"VLAN ID: {lldp.get('vlan_id', '-')}")
 
             if config.get("show_port_descr", False) is True:
                 data_lines.append(f"Description: {lldp.get('port_descr', '-')}")
@@ -229,7 +232,7 @@ def serial_displays(**kwargs):
                 # "Static row for the battery power indicator.
                 if bool(config.get('use_ups_hat', False)) is True:
                     battery_power = redis_db.get('battery_power')
-                    draw.text((x+1, 0), f"Batt. Power {battery_power}%", font=font, fill="yellow")
+                    draw.text((x+1, 0), f"Battery Power {battery_power}%", font=font, fill="yellow")
 
                 # Displaying scrolled data with horizontal offset.
                 for i, line in enumerate(visible_lines, start=0):
@@ -237,7 +240,7 @@ def serial_displays(**kwargs):
                     x_position = x+1 - scroll_x
                     y_position = y_offset + ( line_spacing * 2 * i )
                     draw.text((x_position, y_position), label, font=font, fill="lime")  # Name
-                    draw.text((x_position, y_position + line_spacing), value, font=font, fill="cyan")  # Value
+                    draw.text((x_position, y_position + line_spacing), f"{value}", font=font, fill="cyan")  # Value
 
             sleep(1/kwargs['serial_display_refresh_rate'])
 
@@ -274,16 +277,21 @@ def config_load(path_to_config):
 def ups_hat():
     from INA219 import INA219
     ina219 = INA219(addr=0x43)
+    # Voltage thresholds for a Li-Ion battery
+    V_FULL = 4.2  # Fully charged battery voltage
+    V_EMPTY = 3.0  # Fully discharged battery voltage
 
     while True:
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
         shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
         current = ina219.getCurrent_mA()                   # current in mA
         power = ina219.getPower_W()                        # power in W
-        p = (bus_voltage - 3)/1.2*100
-        if(p > 100):p = 100
-        if(p < 0):p = 0
-        redis_db.set('battery_power', round(p))
+        charge_level = max(0, min(100, ((bus_voltage - V_EMPTY) / (V_FULL - V_EMPTY)) * 100))
+        redis_db.set('battery_power', round(charge_level))
+        redis_db.set('battery_voltage', round(bus_voltage,2))
+        redis_db.set('battery_load', round(power,2))
+        sleep(1)
+
 
 
 def lldpd():
