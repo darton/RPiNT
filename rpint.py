@@ -129,12 +129,12 @@ def lldp():
         "auto_neg_current": auto_neg_current,
         "auto_supported": str(auto_supported),
         "auto_enabled": str(auto_enabled),
+        "available_modes_str": available_modes_str,
         "vlan_id": vlan_id,
         "power_supported": str(power_supported),
         "power_enabled": str(power_enabled),
         "lldp_med_device_type": device_type,
-        "lldp_med_capability": str(capability),
-        "available_modes_str": available_modes_str
+        "lldp_med_capability": str(capability)
     }
 
     redis_db.hset('LLDP', mapping=LLDP) 
