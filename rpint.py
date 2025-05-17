@@ -326,5 +326,6 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         print('')
-        print('# RPiNT is stopped #')
+        print('RPiNT is stopped #')
     except Exception as err:
+        print(f'Main Function Error: {err}')
