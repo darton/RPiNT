@@ -36,6 +36,8 @@ sudo systemclt stop rpint.service
 
 ## Usage
 
+Now you can use the joystick to scroll the LCD screen content horizontally and vertically, allowing you to view data that does not fit on the screen.
+
 ### rpint.toml config file
 
 auto_lldp_read = true
