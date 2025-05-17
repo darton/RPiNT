@@ -322,8 +322,6 @@ def main():
 
     button.when_held = shutdown
 
-    # Przypisanie funkcji do przycisków
-
     pause()
 
 
