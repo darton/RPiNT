@@ -13,8 +13,6 @@
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 
-
-
 import json
 import subprocess
 import pprint
@@ -34,9 +32,7 @@ from signal import pause
 from subprocess import check_call
 
 
-
 # --- Functions ---
-
 def shutdown():
     check_call(['sudo', 'poweroff'])
 
@@ -98,12 +94,9 @@ def lldp():
         available_modes.append(advertised_modes)
     # Konwersja listy na string do zapisu w Redis
     available_modes_str = ",".join(available_modes)
-
     vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
-
     power_supported = port_data.get("power", {}).get("supported", "N/A")
     power_enabled = port_data.get("power", {}).get("enabled", "N/A")
-
     lldp_med = eth0_data.get("lldp-med", {})
     device_type = lldp_med.get("device-type", "N/A")
     capability = lldp_med.get("capability", {}).get("available", "N/A")
@@ -120,10 +113,10 @@ def lldp():
     print(f"Power Enabled: {power_enabled}")
     print(f"LLDP-MED Device Type: {device_type}")
     print(f"LLDP-MED Capability: {capability}")
-    print(f"✅ Auto-Negotiation Supported: {auto_supported}")
-    print(f"✅ Auto-Negotiation Enabled: {auto_enabled}")
-    print(f"✅ Current Mode: {auto_neg_current}")
-    #print(f"✅ Available Modes: {available_modes_str}")
+    print(f"Auto-Negotiation Supported: {auto_supported}")
+    print(f"Auto-Negotiation Enabled: {auto_enabled}")
+    print(f"Current Mode: {auto_neg_current}")
+    #print(f"Available Modes: {available_modes_str}")
     """
 
     LLDP = {
@@ -146,6 +139,7 @@ def lldp():
     redis_db.hset('LLDP', mapping=LLDP) 
   else:
     hset_init_values()
+
 
 # Buttons
 button_up = Button(6)
@@ -187,6 +181,7 @@ button_down.when_pressed = lambda: update_scrolly(button_down)
 button_left.when_pressed = lambda: update_scroll_x(button_left)
 button_right.when_pressed = lambda: update_scroll_x(button_right)
 
+
 def serial_displays(**kwargs):
     global data_lines
     if kwargs['serial_display_type'] == 'lcd_st7735':
@@ -217,7 +212,6 @@ def serial_displays(**kwargs):
                 f"Available Modes: {lldp.get('available_modes_str', '-')}",
             ]
 
-
             visible_lines = data_lines[scroll_index:scroll_index + max_lines]
 
             with canvas(device) as draw:
@@ -244,14 +238,12 @@ def serial_displays(**kwargs):
 
 
 def threading_function(function_name, **kwargs):
-
     t = threading.Thread(target=function_name, name=function_name, kwargs=kwargs)
     t.daemon = True
     t.start()
 
 
 def db_connect(dbhost, dbnum):
-
     try:
         redis_db = redis.StrictRedis(host=dbhost, port=6379, db=str(dbnum), charset="utf-8", decode_responses=True)
         redis_db.ping()
@@ -263,9 +255,7 @@ def db_connect(dbhost, dbnum):
 
 
 def config_load(path_to_config):
-
     try:
-
         with open(path_to_config, "rb") as file:
             config_toml = tomllib.load(file)
         return config_toml
@@ -291,16 +281,13 @@ def ups_hat():
 
 
 def lldpd():
-
   while True:
     lldp()
     sleep(2)
 
 
 def main():
-
     factory = RPiGPIOFactory
-
     button = Button(21, hold_time=5)
 
     print('')
