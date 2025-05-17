@@ -25,3 +25,4 @@ show_vlan_id = true
 show_power_supported = true
 show_power_enabled = true
 show_device_type = true
+

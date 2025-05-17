@@ -2,15 +2,15 @@
 
 Link Layer Discovery Tool based on RPi Zero
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main/RPiNT.jpg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main//images/docs/RPiNT.jpg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1695.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT1.jpeg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1696.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT2.jpeg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1697.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT3.jpeg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main/IMG_1698.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT4.jpeg)
 
 ## Installation
 
@@ -36,21 +36,16 @@ sudo systemclt stop rpint.service
 
 ## Usage
 
-Now you can use the joystick to scroll the LCD screen content horizontally and vertically, allowing you to view data that does not fit on the screen.
-
-### rpint.toml config file
-
-auto_lldp_read = true
+auto_lldp_read: true
 
 Reading lldp data is done automatically after connecting UTP cable to the device. The process of reading lldp data takes a few seconds.
 
 
-auto_lldp_read = false
+auto_lldp_read: false
 
-To read lldp data, connect the UTP cable to the device, wait a few seconds, press "KEY 1" a few seconds. If there is no reading, try again.
+To read lldp data, connect the UTP cable to the device, wait a few seconds, press "key 1" a few seconds. If there is no reading, try again.
 
 
-### Shutdown
 To shut down the system, press "KEY1" for more than 5 seconds.
 
 ## B.o.M - Bill of Materials
