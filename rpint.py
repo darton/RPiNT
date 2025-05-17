@@ -38,21 +38,26 @@ def shutdown():
     check_call(['sudo', 'poweroff'])
 
 
+
 def hset_init_values():
-    redis_db.hset('LLDP', 'chassis_id', '--')
-    redis_db.hset('LLDP', 'chassis_description', '--')
-    redis_db.hset('LLDP', 'management_ip', '--')
-    redis_db.hset('LLDP', 'port_id', '--')
-    redis_db.hset('LLDP', 'port_descr', '--')
-    redis_db.hset('LLDP', 'auto_neg_current', '--')
-    redis_db.hset('LLDP', 'auto_supported', '--')
-    redis_db.hset('LLDP', 'auto_enabled', '--')
-    redis_db.hset('LLDP', 'available_modes_str', '--')
-    redis_db.hset('LLDP', 'vlan_id', '--')
-    redis_db.hset('LLDP', 'power_supported', '--')
-    redis_db.hset('LLDP', 'power_enabled', '--')
-    redis_db.hset('LLDP', 'lldp_med_device_type', '--')
-    redis_db.hset('LLDP', 'lldp_med_capability', '--')
+    default_values = {
+        'chassis_id': '--',
+        'chassis_description': '--',
+        'management_ip': '--',
+        'port_id': '--',
+        'port_descr': '--',
+        'auto_neg_current': '--',
+        'auto_supported': '--',
+        'auto_enabled': '--',
+        'available_modes_str': '--',
+        'vlan_id': '--',
+        'power_supported': '--',
+        'power_enabled': '--',
+        'lldp_med_device_type': '--',
+        'lldp_med_capability': '--',
+    }
+    redis_db.hset('LLDP', mapping=default_values)
+
 
 
 def lldp():
