@@ -62,12 +62,10 @@ def hset_init_values():
 
 
 
-def lldp():
+def lldp(command_runner=subprocess.run):
   command = ['lldpcli', 'show', 'neighbors', 'details', '-f', 'json']
   try:
-      result = subprocess.run(
-          command, text=True, capture_output=True, check=True
-      )
+      result = command_runner(command, text=True, capture_output=True, check=True)
       lldp = json.loads(result.stdout)
       lldp_len = len(lldp['lldp'])
   except subprocess.CalledProcessError as e:
