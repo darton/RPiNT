@@ -148,7 +148,6 @@ def lldp(command_runner=subprocess.run):
 
 # Initialization of the scrolling index
 scroll_index = 0
-scroll_x = 0
 max_lines = 3  # Number of lines visible on the screen
 # Function for handling vertical scrolling
 def update_scrolly(button):
@@ -162,8 +161,9 @@ def update_scrolly(button):
 
 
 # Function for handling horizontal scrolling
-MAX_SCROLL_X = 1000
+scroll_x = 0
 def update_scroll_x(button):
+    MAX_SCROLL_X = 256
     global scroll_x
     if button == button_left:
         scroll_x = max(0, scroll_x - 20)  # Scrolling to the left.
