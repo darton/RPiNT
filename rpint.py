@@ -323,9 +323,9 @@ def ups_hat():
 
 
 def lldpd():
-  while not stop_threads.is_set():
-    lldp()
-    sleep(2)
+    while not stop_threads.is_set():
+        lldp()
+        sleep(2)
 
 
 
