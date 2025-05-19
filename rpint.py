@@ -33,7 +33,6 @@ from gpiozero import Button
 from signal import pause
 from subprocess import check_call
 
-threads = []
 
 # --- Functions ---
 def shutdown():
@@ -264,7 +263,6 @@ def threading_function(function_name: callable, **kwargs) -> threading.Thread:
         t = threading.Thread(target=function_name, name=thread_name, kwargs=kwargs)
         t.daemon = True  # Ensure the thread exits when the main program exits
         t.start()
-        threads.append(t)
         # Log thread creation (optional)
         journal.send(f"Thread '{thread_name}' started successfully.")
         return t  # Return the thread object for further management if needed
