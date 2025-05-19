@@ -56,7 +56,7 @@ def hset_init_values():
         'lldp_med_device_type': '--',
         'lldp_med_capability': '--',
     }
-    redis_db.hset('LLDP', mapping=default_values)
+    return default_values
 
 
 
@@ -136,9 +136,11 @@ def lldp(command_runner=subprocess.run):
 
 def save_lldp_to_redis(lldp_data):
     if lldp_data is None:
-        hset_init_values()
+        lldp_data = hset_init_values()
+        redis_db.hset('LLDP', mapping=lldp_data)
     else:
         redis_db.hset('LLDP', mapping=lldp_data)
+
 
 
 
@@ -153,6 +155,7 @@ def update_scroll_y(button):
             scroll_index = max(0, scroll_index - 1)  # Scrolling up
         elif button == button_down:
             scroll_index = min(len(data_lines) - max_lines, scroll_index + 1)  # Scrolling down
+
 
 
 scroll_x = 0
