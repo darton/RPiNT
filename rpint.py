@@ -271,7 +271,7 @@ def threading_function(function_name: callable, **kwargs) -> threading.Thread:
     except Exception as e:
         # Log the error and re-raise it
         journal.send(f"Error starting thread for '{function_name.__name__}': {e}")
-        raise
+        raise RuntimeError(f"Failed to start thread '{thread_name}'") from e
 
 
 def db_connect(dbhost, dbnum):
