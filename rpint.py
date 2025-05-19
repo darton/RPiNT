@@ -329,9 +329,12 @@ def lldp_worker():
 
 
 def signal_handler(sig, frame):
-    print("Received termination signal, stopping threads...")
+    error = f"Received termination signal, stopping threads..."
+    journal.send(error)
     stop_threads.set()
-    sys.exit(0)
+    error = f"\nAll threads have been signaled to stop."
+    journal.send(error)
+    sys.exit(error)
 
 
 
@@ -340,6 +343,10 @@ if __name__ == '__main__':
     stop_threads = threading.Event()
     signal.signal(signal.SIGTERM, signal_handler) # Register SIGTERM signal handler for systemd shutdown
     signal.signal(signal.SIGINT, signal_handler) # Handle Ctrl+C for local testing
+    ## Register signal handlers, lambda based
+    #signal.signal(signal.SIGTERM, lambda sig, frame: signal_handler(sig, frame, stop_threads))
+    #signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, stop_threads))
+
 
     print('')
     print('# RPiNT is running #')
@@ -384,8 +391,11 @@ if __name__ == '__main__':
         button.when_held = shutdown
         pause()
     except KeyboardInterrupt:
-        print('')
-        print('RPiNT is stopped #')
+        error = f"RPiNT is stopped from keyboard"
+        journal.send(error)
+        sys.exit(error)
     except Exception as err:
-        print(f'Main Function Error: {err}')
+        error = f"Main Function Error: {err}"
+        journal.send(error)
+        sys.exit(error)
 
