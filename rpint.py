@@ -159,9 +159,8 @@ def update_scrolly(button):
             scroll_index = min(len(data_lines) - max_lines, scroll_index + 1)  # Scrolling down
 
 
-
-# Function for handling horizontal scrolling
 scroll_x = 0
+# Function for handling horizontal scrolling
 def update_scroll_x(button):
     MAX_SCROLL_X = 256
     global scroll_x
@@ -172,10 +171,10 @@ def update_scroll_x(button):
 
 
 
-def serial_displays(**kwargs):
+def serial_displays(**config):
     global data_lines
-    FONT_PATH = os.getenv('RPINT_FONT_PATH', '/home/pi/scripts/RPiNT/FreePixel.ttf')
-    if kwargs['serial_display_type'] == 'lcd_st7735':
+
+    if config['serial_display_type'] == 'lcd_st7735':
         width, height = 128, 128
         x = 0
         display_rotate = 0
@@ -227,7 +226,7 @@ def serial_displays(**kwargs):
             visible_lines = data_lines[scroll_index:scroll_index + max_lines]
 
             with canvas(device) as draw:
-                font_size = kwargs['font_size']
+                font_size = config['font_size']
                 font = ImageFont.truetype(FONT_PATH, font_size)
                 y_offset = 25  # "Initial position on the screen.
                 line_spacing = font_size + 1  # Line spacing.
@@ -245,7 +244,7 @@ def serial_displays(**kwargs):
                     draw.text((x_position, y_position), label, font=font, fill="lime")  # Name
                     draw.text((x_position, y_position + line_spacing), f"{value}", font=font, fill="cyan")  # Value
 
-            sleep(1/kwargs['serial_display_refresh_rate'])
+            sleep(1/config['serial_display_refresh_rate'])
 
 
 
@@ -260,15 +259,15 @@ def threading_function(function_name: callable, **kwargs) -> threading.Thread:
     try:
         # Use the function name for the thread's name (or fallback to a default name)
         thread_name = f"Thread-{function_name.__name__}" if callable(function_name) else "Unnamed-Thread"
-        
+
         # Create and start the thread
         t = threading.Thread(target=function_name, name=thread_name, kwargs=kwargs)
         t.daemon = True  # Ensure the thread exits when the main program exits
         t.start()
-        
+
         # Log thread creation (optional)
         journal.send(f"Thread '{thread_name}' started successfully.")
-        
+
         return t  # Return the thread object for further management if needed
     except Exception as e:
         # Log the error and re-raise it
@@ -347,6 +346,7 @@ if __name__ == '__main__':
     print('')
 
     CONFIG_PATH = os.getenv('RPINT_CONFIG_PATH', '/home/pi/scripts/RPiNT/rpint.toml')
+    FONT_PATH = os.getenv('RPINT_FONT_PATH', '/home/pi/scripts/RPiNT/FreePixel.ttf')
 
     factory = RPiGPIOFactory
 
