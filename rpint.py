@@ -33,7 +33,7 @@ from gpiozero import Button
 from signal import pause
 from subprocess import check_call
 
-
+threads = []
 
 # --- Functions ---
 def shutdown():
