@@ -249,10 +249,31 @@ def serial_displays(**kwargs):
 
 
 
-def threading_function(function_name, **kwargs):
-    t = threading.Thread(target=function_name, name=function_name, kwargs=kwargs)
-    t.daemon = True
-    t.start()
+def threading_function(function_name: callable, **kwargs) -> threading.Thread:
+    """
+    Starts a daemon thread to run the specified function with the given keyword arguments.
+
+    :param function_name: The function to be executed in the thread.
+    :param kwargs: Keyword arguments to be passed to the function.
+    :return: The created and started Thread object.
+    """
+    try:
+        # Use the function name for the thread's name (or fallback to a default name)
+        thread_name = f"Thread-{function_name.__name__}" if callable(function_name) else "Unnamed-Thread"
+        
+        # Create and start the thread
+        t = threading.Thread(target=function_name, name=thread_name, kwargs=kwargs)
+        t.daemon = True  # Ensure the thread exits when the main program exits
+        t.start()
+        
+        # Log thread creation (optional)
+        journal.send(f"Thread '{thread_name}' started successfully.")
+        
+        return t  # Return the thread object for further management if needed
+    except Exception as e:
+        # Log the error and re-raise it
+        journal.send(f"Error starting thread for '{function_name.__name__}': {e}")
+        raise
 
 
 def db_connect(dbhost, dbnum):
