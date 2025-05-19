@@ -150,7 +150,7 @@ def lldp(command_runner=subprocess.run):
 scroll_index = 0
 max_lines = 3  # Number of lines visible on the screen
 # Function for handling vertical scrolling
-def update_scrolly(button):
+def update_scroll_y(button):
     global scroll_index, data_lines, max_lines
     if len(data_lines) > max_lines:  # Ensures that scrolling is possible only if there are additional lines.
         if button == button_up:
@@ -358,8 +358,8 @@ if __name__ == '__main__':
     button_left = Button(5)
     button_right = Button(26)
 
-    button_up.when_pressed = lambda: update_scrolly(button_up)
-    button_down.when_pressed = lambda: update_scrolly(button_down)
+    button_up.when_pressed = lambda: update_scroll_y(button_up)
+    button_down.when_pressed = lambda: update_scroll_y(button_down)
     button_left.when_pressed = lambda: update_scroll_x(button_left)
     button_right.when_pressed = lambda: update_scroll_x(button_right)
 
