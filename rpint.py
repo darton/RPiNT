@@ -68,60 +68,53 @@ def lldp(command_runner=subprocess.run):
       lldp_len = len(lldp['lldp'])
   except subprocess.CalledProcessError as e:
       journal.send(f"LLDP command failed: {e}")
-      hset_init_values()
-      return
+      return None
   except json.JSONDecodeError as e:
       journal.send(f"Failed to parse LLDP JSON: {e}")
-      hset_init_values()
-      return
+      return None
 
-  if lldp_len != 0:
+  if lldp_len == 0:
+      return None
 
-    eth0_data = lldp.get("lldp", {}).get("interface", {}).get("eth0", {})
+  eth0_data = lldp.get("lldp", {}).get("interface", {}).get("eth0", {})
 
-    # Retrieving the dynamic Chassis ID (first available key)
-    chassis_key = next(iter(eth0_data.get("chassis", {})), "Unknown")
-    chassis_data = eth0_data.get("chassis", {}).get(chassis_key, {})
-    # Retrieving key data
-    chassis_id = chassis_data.get("value", "N/A")
-    chassis_description = eth0_data.get("chassis", {}).get("descr", "N/A")
-    management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"]))
+  # Retrieving the dynamic Chassis ID (first available key)
+  chassis_key = next(iter(eth0_data.get("chassis", {})), "Unknown")
+  chassis_data = eth0_data.get("chassis", {}).get(chassis_key, {})
+  # Retrieving key data
+  chassis_id = chassis_data.get("value", "N/A")
+  chassis_description = eth0_data.get("chassis", {}).get("descr", "N/A")
+  management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"]))
 
-    port_data = eth0_data.get("port", {})
-    port_id = port_data.get("id", {}).get("value", "N/A")
-    port_descr = port_data.get("descr", "N/A")
-    auto_neg_current = port_data.get("auto-negotiation", {}).get("current", "N/A")
-    auto_supported = port_data.get("auto-negotiation", {}).get("supported", "N/A")
-    auto_enabled = port_data.get("auto-negotiation", {}).get("enabled", "N/A")
+  port_data = eth0_data.get("port", {})
+  port_id = port_data.get("id", {}).get("value", "N/A")
+  port_descr = port_data.get("descr", "N/A")
+  auto_neg_current = port_data.get("auto-negotiation", {}).get("current", "N/A")
+  auto_supported = port_data.get("auto-negotiation", {}).get("supported", "N/A")
+  auto_enabled = port_data.get("auto-negotiation", {}).get("enabled", "N/A")
 
-    # Retrieving the list of available connection modes.
-    #advertised_modes = port_data.get("auto-negotiation", {}).get("advertised", [])
-    #available_modes = ", ".join([f"{mode.get('type', 'Unknown')} ({'HD' if mode.get('hd', False) else ''} {'FD' if mode.get('fd', False) else ''})".strip() for mode in advertised_modes])
-    # Retrieving the list of available connection modes.
-    advertised_modes = port_data.get("auto-negotiation", {}).get("advertised", [])
-    # Checking whether advertised_modes is a list or a string.
-    available_modes = []
-    if isinstance(advertised_modes, list):  # If it's a list, we process it as before.
-        for mode in advertised_modes:
-            mode_type = mode.get("type", "Unknown")
-            hd = "HD" if mode.get("hd", False) else ""
-            fd = "FD" if mode.get("fd", False) else ""
-            available_modes.append(f"{mode_type}/{hd}/{fd}".strip())
-    elif isinstance(advertised_modes, str):  # If it's a string, we save it directly.
-        available_modes.append(advertised_modes)
-    # Conversion of a list to a string for storage in Redis.
-    available_modes_str = ",".join(available_modes)
+  advertised_modes = port_data.get("auto-negotiation", {}).get("advertised", [])
+  # Checking whether advertised_modes is a list or a string.
+  available_modes = []
+  if isinstance(advertised_modes, list):  # If it's a list, we process it as before.
+      for mode in advertised_modes:
+          mode_type = mode.get("type", "Unknown")
+          hd = "HD" if mode.get("hd", False) else ""
+          fd = "FD" if mode.get("fd", False) else ""
+          available_modes.append(f"{mode_type}/{hd}/{fd}".strip())
+  elif isinstance(advertised_modes, str):  # If it's a string, we save it directly.
+      available_modes.append(advertised_modes)
+  # Conversion of a list to a string for storage in Redis.
+  available_modes_str = ",".join(available_modes)
 
-    vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
-    power_supported = port_data.get("power", {}).get("supported", "N/A")
-    power_enabled = port_data.get("power", {}).get("enabled", "N/A")
+  vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
+  power_supported = port_data.get("power", {}).get("supported", "N/A")
+  power_enabled = port_data.get("power", {}).get("enabled", "N/A")
+  lldp_med = eth0_data.get("lldp-med", {})
+  device_type = lldp_med.get("device-type", "N/A")
+  capability = lldp_med.get("capability", {}).get("available", "N/A")
 
-    lldp_med = eth0_data.get("lldp-med", {})
-    device_type = lldp_med.get("device-type", "N/A")
-    capability = lldp_med.get("capability", {}).get("available", "N/A")
-
-
-    LLDP = {
+  LLDP = {
         "chassis_id": chassis_id,
         "chassis_description": chassis_description,
         "management_ips": management_ip,
@@ -136,11 +129,16 @@ def lldp(command_runner=subprocess.run):
         "power_enabled": str(power_enabled),
         "lldp_med_device_type": device_type,
         "lldp_med_capability": str(capability)
-    }
+  }
+  return LLDP
 
-    redis_db.hset('LLDP', mapping=LLDP)
-  else:
-    hset_init_values()
+
+
+def save_lldp_to_redis(lldp_data):
+    if lldp_data is None:
+        hset_init_values()
+    else:
+        redis_db.hset('LLDP', mapping=lldp_data)
 
 
 
@@ -319,9 +317,10 @@ def ups_hat():
 
 
 
-def lldpd():
+def lldp_worker():
     while not stop_threads.is_set():
-        lldp()
+        lldp_data = lldp()
+        save_lldp_to_redis(lldp_data)
         sleep(2)
 
 
@@ -377,7 +376,7 @@ if __name__ == '__main__':
             threading_function(serial_displays, **config)
 
         if bool(config['auto_lldp_read']) is True:
-            threading_function(lldpd)
+            threading_function(lldp_worker)
         else:
             button.when_pressed = lldp
 
@@ -390,3 +389,4 @@ if __name__ == '__main__':
     except Exception as err:
         stop_threads.set()
         print(f'Main Function Error: {err}')
+
