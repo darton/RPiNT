@@ -17,7 +17,6 @@ import os
 import json
 import signal
 import subprocess
-import pprint
 import threading
 import redis
 import sys
