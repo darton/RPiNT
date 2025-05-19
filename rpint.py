@@ -337,8 +337,8 @@ def signal_handler(sig, frame):
 
 # --- Main program ---
 if __name__ == '__main__':
-    # Register SIGTERM signal handler for systemd shutdown
-    signal.signal(signal.SIGTERM, signal_handler)
+    stop_threads = threading.Event()
+    signal.signal(signal.SIGTERM, signal_handler) # Register SIGTERM signal handler for systemd shutdown
     signal.signal(signal.SIGINT, signal_handler) # Handle Ctrl+C for local testing
 
     print('')
@@ -370,8 +370,6 @@ if __name__ == '__main__':
 
         hset_init_values()
 
-        stop_threads = threading.Event()
-
         if bool(config['use_ups_hat']) is True:
             threading_function(ups_hat)
 
@@ -386,10 +384,8 @@ if __name__ == '__main__':
         button.when_held = shutdown
         pause()
     except KeyboardInterrupt:
-        stop_threads.set()
         print('')
         print('RPiNT is stopped #')
     except Exception as err:
-        stop_threads.set()
         print(f'Main Function Error: {err}')
 
