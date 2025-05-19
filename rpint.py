@@ -317,7 +317,6 @@ def signal_handler(sig, frame):
 
 # --- Main program ---
 if __name__ == '__main__':
-
     # Register SIGTERM signal handler for systemd shutdown
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler) # Handle Ctrl+C for local testing
