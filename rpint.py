@@ -314,9 +314,11 @@ def ups_hat():
         current = ina219.getCurrent_mA()                   # current in mA
         power = ina219.getPower_W()                        # power in W
         charge_level = max(0, min(100, ((bus_voltage - V_EMPTY) / (V_FULL - V_EMPTY)) * 100))
-        redis_db.set('battery_power', round(charge_level))
-        redis_db.set('battery_voltage', round(bus_voltage,2))
-        redis_db.set('battery_load', round(power,2))
+        pipe = redis_db.pipeline()
+        pipe.set('battery_power', round(charge_level))
+        pipe.set('battery_voltage', round(bus_voltage, 2))
+        pipe.set('battery_load', round(power, 2))
+        pipe.execute()
         sleep(1)
 
 
