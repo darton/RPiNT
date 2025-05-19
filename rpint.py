@@ -264,10 +264,9 @@ def threading_function(function_name: callable, **kwargs) -> threading.Thread:
         t = threading.Thread(target=function_name, name=thread_name, kwargs=kwargs)
         t.daemon = True  # Ensure the thread exits when the main program exits
         t.start()
-
+        threads.append(t)
         # Log thread creation (optional)
         journal.send(f"Thread '{thread_name}' started successfully.")
-
         return t  # Return the thread object for further management if needed
     except Exception as e:
         # Log the error and re-raise it
@@ -333,6 +332,8 @@ def lldpd():
 def signal_handler(sig, frame):
     print("Received termination signal, stopping threads...")
     stop_threads.set()
+    for t in threads:
+        t.join()  # Ensure all threads finish execution
     sys.exit(0)
 
 
