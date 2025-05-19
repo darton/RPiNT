@@ -390,4 +390,3 @@ if __name__ == '__main__':
     except Exception as err:
         stop_threads.set()
         print(f'Main Function Error: {err}')
-
