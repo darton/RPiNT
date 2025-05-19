@@ -332,7 +332,7 @@ def signal_handler(sig, frame):
     error = f"Received termination signal, stopping threads..."
     journal.send(error)
     stop_threads.set()
-    error = f"\nAll threads have been signaled to stop."
+    error = f"All threads have been signaled to stop."
     journal.send(error)
     sys.exit(error)
 
