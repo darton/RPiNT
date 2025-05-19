@@ -330,8 +330,6 @@ def lldpd():
 def signal_handler(sig, frame):
     print("Received termination signal, stopping threads...")
     stop_threads.set()
-    for t in threads:
-        t.join()  # Ensure all threads finish execution
     sys.exit(0)
 
 
