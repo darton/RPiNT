@@ -46,7 +46,7 @@ curl -sS $repourl -L -o $downloaddir/RPiNT.zip
 unzip  $downloaddir/RPiNT.zip -d $downloaddir
 rsync -av "$unpackdir/" "$installdir/"
 chown -R $SUDO_USER:$SUDO_USER "$(dirname "$installdir")"
-chown -R $SUDO_USER:$SUDO_USER $installdir
+
 
 apt-get -y update
 apt-get -y upgrade
