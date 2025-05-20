@@ -7,10 +7,11 @@ Documentation=https://github.com/darton/rpint
 
 [Service]
 Type=simple
-User=root
-Group=root
+User=pi
+Group=pi
 ExecStart=/usr/bin/python3 /home/pi/scripts/RPiNT/rpint.py
 StandardInput=tty-force
+WorkingDirectory=/home/pi/scripts/RPiNT/
 
 [Install]
 WantedBy=multi-user.target
