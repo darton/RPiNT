@@ -100,6 +100,8 @@ add_sysctl_param() {
 add_sysctl_param "vm.overcommit_memory" "1" "/etc/sysctl.conf"
 add_sysctl_param "net.core.somaxconn" "512" "/etc/sysctl.conf"
 
+grep -q "^maxmemory" /etc/redis/redis.conf || echo "maxmemory 100mb" | tee -a /etc/redis/redis.conf
+
 systemctl start redis-server.service
 
 cat <<EOF | tee /lib/systemd/system/rpint.service
