@@ -21,7 +21,7 @@ fi
 repourl=https://github.com/darton/RPiNT/archive/refs/heads/master.zip
 downloaddir=/tmp
 unpackdir=/tmp/RPiNT-main
-installdir=/home/pi/scripts/RPiNT
+installdir=/home/$SUDO_USER/scripts/RPiNT
 
 INSTALL_CMD="apt-get -y install"
 
