@@ -1,6 +1,5 @@
 [Unit]
 Description=RPiNT Service
-#After=network.target
 After=redis-server.service
 Conflicts=getty@tty1.service
 Documentation=https://github.com/darton/rpint
