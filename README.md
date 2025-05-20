@@ -34,7 +34,13 @@ sudo systemctl start rpint.service
 sudo systemclt stop rpint.service
 ```
 
-## Usage
+## Usage 
+
+### Joystick
+Now you can use the joystick to scroll the LCD screen content horizontally and vertically, allowing you to view data that does not fit on the screen.
+
+
+### rpint.toml config file
 
 auto_lldp_read: true
 
@@ -43,7 +49,7 @@ Reading lldp data is done automatically after connecting UTP cable to the device
 
 auto_lldp_read: false
 
-To read lldp data, connect the UTP cable to the device, wait a few seconds, press "key 1" a few seconds. If there is no reading, try again.
+To read lldp data, connect the UTP cable to the device, wait a few seconds, press "KEY 1" a few seconds. If there is no reading, try again.
 
 
 To shut down the system, press "KEY1" for more than 5 seconds.
