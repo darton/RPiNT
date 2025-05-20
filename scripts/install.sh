@@ -91,6 +91,7 @@ Documentation=https://github.com/darton/rpint
 Type=simple
 User=$SUDO_USER
 Group=$SUDO_USER
+Environment="RPINT_CONFIG_PATH=$installdir/rpint.toml"
 ExecStart=/usr/bin/python3 $installdir/rpint.py
 StandardInput=tty-force
 WorkingDirectory=$installdir
