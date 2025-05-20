@@ -114,6 +114,8 @@ echo "sudo ip link set dev eth0 up" | tee -a /etc/rc.local
 rm $downloaddir/RPiNT.zip
 rm -r $unpackdir
 
+systemctl start rpint.service
+
 echo ""
 echo "-------------------------------------"
 echo "Installation successfully completed !"
