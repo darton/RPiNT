@@ -44,9 +44,8 @@ raspi-config nonint do_change_timezone Europe/Warsaw
 
 curl -sS $repourl -L -o $downloaddir/RPiNT.zip
 unzip  $downloaddir/RPiNT.zip -d $downloaddir
-cp $unpackdir/* $installdir
-chmod u+x $installdir/*.py
-chown -R pi.pi $installdir
+rsync -av "$unpackdir/" "$installdir/"
+chown -R $SUDO_USER:$SUDO_USER $installdir
 
 apt-get -y update
 apt-get -y upgrade
@@ -95,4 +94,4 @@ systemctl disable --now systemd-timesyncd.service 2>/dev/null
 echo "sudo ip link set dev eth0 up" | tee -a /etc/rc.local
 
 rm $downloaddir/RPiNT.zip
-rmdir --ignore-fail-on-non-empty $unpackdir
+rm -r $unpackdir
