@@ -84,6 +84,7 @@ systemctl start redis-server.service
 mv $unpackdir/scripts/rpint.service /lib/systemd/system/rpint.service
 systemctl daemon-reload
 systemctl enable rpint.service
+systemctl start rpint.service
 
 systemctl stop dphys-swapfile.service 2>/dev/null
 systemctl disable dphys-swapfile.service 2>/dev/null
@@ -96,3 +97,22 @@ echo "sudo ip link set dev eth0 up" | tee -a /etc/rc.local
 
 rm $downloaddir/RPiNT.zip
 rm -r $unpackdir
+
+echo ""
+echo "-------------------------------------"
+echo "Installation successfully completed !"
+echo "-------------------------------------"
+echo ""
+echo "Do you want to reboot RPiMS now ?"
+echo ""
+
+read -r -p "$1 [y/N] " response < /dev/tty
+
+if [[ $response =~ ^(yes|y|Y)$ ]]; then
+    reboot
+else
+    echo ""
+    echo "Run this command manually: sudo reboot"
+    echo ""
+    exit 0
+fi
