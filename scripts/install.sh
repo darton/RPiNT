@@ -92,6 +92,7 @@ Type=simple
 User=$SUDO_USER
 Group=$SUDO_USER
 Environment="RPINT_CONFIG_PATH=$installdir/rpint.toml"
+Environment="RPINT_FONT_PATH=$installdir/fonts/FreePixel.ttf"
 ExecStart=/usr/bin/python3 $installdir/rpint.py
 StandardInput=tty-force
 WorkingDirectory=$installdir
