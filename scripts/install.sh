@@ -81,7 +81,7 @@ echo 'net.core.somaxconn=512' | tee -a /etc/sysctl.conf
 echo 'maxmemory 100mb' | tee -a /etc/redis/redis.conf
 systemctl start redis-server.service
 
-mv $unpackdir/rpint.service /lib/systemd/system/rpint.service
+mv $unpackdir/scripts/rpint.service /lib/systemd/system/rpint.service
 systemctl daemon-reload
 systemctl enable rpint.service
 

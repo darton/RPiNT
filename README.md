@@ -2,15 +2,15 @@
 
 Link Layer Discovery Tool based on RPi Zero
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main//images/docs/RPiNT.jpg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/docs/images/RPiNT.jpg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT1.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/docs/images/RPiNT1.jpeg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT2.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/docs/images/RPiNT2.jpeg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT3.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/docs/images/RPiNT3.jpeg)
 
-![RPiNT](https://github.com/darton/RPiNT/blob/main//images/RPiNT4.jpeg)
+![RPiNT](https://github.com/darton/RPiNT/blob/main/docs/images/RPiNT4.jpeg)
 
 ## Installation
 
@@ -25,7 +25,7 @@ To writing an image to the SD card, use [Imager](https://www.raspberrypi.org/dow
 Running the following command will download and run the script.
 
 ```
-curl -sS https://raw.githubusercontent.com/darton/RPiNT/main/install.sh |sudo bash
+curl -sS https://raw.githubusercontent.com/darton/RPiNT/refs/heads/main/scripts/install.sh |sudo bash
 ```
 
 Start/Stop RPiNT
