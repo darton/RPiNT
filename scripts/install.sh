@@ -135,7 +135,7 @@ systemctl disable hciuart.service 2>/dev/null
 systemctl disable dhcpcd.service 2>/dev/null
 systemctl disable --now systemd-timesyncd.service 2>/dev/null
 
-echo "sudo ip link set dev eth0 up" | tee /etc/rc.local
+echo "ip link set dev eth0 up" | tee /etc/rc.local
 chmod +x /etc/rc.local
 
 rm $downloaddir/RPiNT.zip
