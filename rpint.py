@@ -144,8 +144,46 @@ def save_lldp_to_redis(lldp_data):
 
 
 
-# Initialization of the scrolling index
-scroll_index = 0
+def get_max_content_width(data_lines, FONT_PATH, **config):
+    FONT_SIZE = config['font_size']
+    font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
+    max_width = 0
+    for line in data_lines:
+        # Assuming line is "LABEL: VALUE"
+        try:
+            label, value = line.split(": ", 1)
+        except ValueError:
+            value = line  # if raw is not in format "LABEL: VALUE"
+        width = font.getlength(value)  # PIL >= 8.0.0
+        if width > max_width:
+            max_width = width
+    return max_width
+
+
+
+def update_max_scroll_x(data_lines, FONT_PATH, **config):
+    DISPLAY_WIDTH = config.get('serial_display_width', 128)
+    max_content_width = get_max_content_width(data_lines, FONT_PATH, **config)
+    max_scroll_x = max(0, int(max_content_width - DISPLAY_WIDTH + 10))  # +10 for padding, optional
+    return max_scroll_x
+
+
+
+scroll_x = 0
+def update_scroll_x(button, FONT_PATH, step=20, **config):
+    global scroll_x, data_lines
+    max_scroll_x = update_max_scroll_x(data_lines, FONT_PATH, **config)
+
+    prev_x = scroll_x
+    if button == button_left:
+        scroll_x = max(0, scroll_x - step)
+    elif button == button_right:
+        scroll_x = min(max_scroll_x, scroll_x + step)
+
+
+
+
+scroll_index = 0 # Initialization of the scrolling index
 max_lines = 3  # Number of lines visible on the screen
 # Function for handling vertical scrolling
 def update_scroll_y(button):
@@ -158,29 +196,20 @@ def update_scroll_y(button):
 
 
 
-scroll_x = 0
-# Function for handling horizontal scrolling
-def update_scroll_x(button):
-    MAX_SCROLL_X = 256
-    global scroll_x
-    if button == button_left:
-        scroll_x = max(0, scroll_x - 20)  # Scrolling to the left.
-    elif button == button_right:
-        scroll_x = min(MAX_SCROLL_X, scroll_x + 20)  # Scrolling to the right.
-
-
-
 def serial_displays(**config):
     global data_lines
 
     if config['serial_display_type'] == 'lcd_st7735':
-        width, height = 128, 128
+        DISPLAY_WIDTH, DISPLAY_HEIGHT = config.get('serial_display_width', 128),config.get('serial_display_height', 128)
+        DISPLAY_ROTATE = config.get('serial_display_rotate', 0)
+        DISPLAY_HORIZONTAL_OFFSET = config.get('serial_display_horizontal_offset', 1)
+        DISPLAY_VERTICAL_OFFSET = config.get('serial_display_vertical_offset', 2)
+        DISPLAY_BACKGROUND = str(config.get('serial_display_background', True))
         x = 0
-        display_rotate = 0
 
         serial = spi(device=0, port=0, bus_speed_hz=8000000, transfer_size=4096, gpio_DC=25, gpio_RST=27)
         device = st7735(serial)
-        device = st7735(serial, width=128, height=128, h_offset=1, v_offset=2, bgr=True, persist=False, rotate=display_rotate)
+        device = st7735(serial, width=DISPLAY_WIDTH, height=DISPLAY_HEIGHT, h_offset=DISPLAY_HORIZONTAL_OFFSET, v_offset=DISPLAY_VERTICAL_OFFSET, bgr=DISPLAY_BACKGROUND, persist=False, rotate=DISPLAY_ROTATE)
 
         while not stop_threads.is_set():
             lldp = redis_db.hgetall('LLDP')
@@ -225,10 +254,10 @@ def serial_displays(**config):
             visible_lines = data_lines[scroll_index:scroll_index + max_lines]
 
             with canvas(device) as draw:
-                font_size = config['font_size']
-                font = ImageFont.truetype(FONT_PATH, font_size)
+                FONT_SIZE = config['font_size']
+                font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
                 y_offset = 25  # "Initial position on the screen.
-                line_spacing = font_size + 1  # Line spacing.
+                line_spacing = FONT_SIZE + 1  # Line spacing.
 
                 # "Static row for the battery power indicator.
                 if bool(config.get('use_ups_hat', False)) is True:
@@ -365,8 +394,8 @@ if __name__ == '__main__':
 
     button_up.when_pressed = lambda: update_scroll_y(button_up)
     button_down.when_pressed = lambda: update_scroll_y(button_down)
-    button_left.when_pressed = lambda: update_scroll_x(button_left)
-    button_right.when_pressed = lambda: update_scroll_x(button_right)
+    button_left.when_pressed = lambda: update_scroll_x(button_left, FONT_PATH, **config)
+    button_right.when_pressed = lambda: update_scroll_x(button_right, FONT_PATH, **config)
 
     try:
         redis_db = db_connect('localhost', 0)
@@ -398,4 +427,3 @@ if __name__ == '__main__':
         error = f"Main Function Error: {err}"
         journal.send(error)
         sys.exit(error)
-
