@@ -57,8 +57,8 @@ $INSTALL_CMD libfreetype6-dev
 $INSTALL_CMD libopenjp2-7
 $INSTALL_CMD libtiff5
 $INSTALL_CMD libjpeg-dev
-
 $INSTALL_CMD build-essential
+
 $INSTALL_CMD python3-dev
 $INSTALL_CMD python3-pip
 $INSTALL_CMD python3-setuptools
