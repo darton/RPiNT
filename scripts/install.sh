@@ -24,7 +24,6 @@ unpackdir=/tmp/RPiNT-main
 installdir=/home/pi/scripts/RPiNT
 
 INSTALL_CMD="apt-get -y install"
-PIP3_INSTALL_CMD="pip3 install --upgrade"
 
 echo "Do you want to install the RPiNT software?"
 read -r -p "$1 [y/N] " response < /dev/tty
