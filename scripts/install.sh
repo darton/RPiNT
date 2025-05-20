@@ -73,11 +73,33 @@ $INSTALL_CMD python3-luma.lcd
 
 $INSTALL_CMD redis-server
 systemctl enable redis-server.service
-sysctl -w vm.overcommit_memory=1
-sysctl -w net.core.somaxconn=512
-echo 'vm.overcommit_memory=1' | tee -a /etc/sysctl.conf
-echo 'net.core.somaxconn=512' | tee -a /etc/sysctl.conf
-echo 'maxmemory 100mb' | tee -a /etc/redis/redis.conf
+
+# Function to check and add a sysctl parameter to a specified file
+add_sysctl_param() {
+    local param="$1"  # First argument: sysctl parameter name
+    local value="$2"  # Second argument: desired value
+    local file="$3"   # Third argument: target configuration file
+
+    # Ensure the file exists, otherwise create it
+    if [[ ! -f "$file" ]]; then
+        echo "Warning: $file does not exist, creating it..."
+        sudo touch "$file"
+    fi
+
+    # Check if the parameter is already set in the configuration file
+    if grep -q "^$param=$value" "$file"; then
+        echo "The entry $param=$value already exists in $file. No changes made."
+    else
+        echo "Adding $param=$value to $file..."
+        echo "$param=$value" | sudo tee -a "$file"
+        sudo sysctl -p  # Apply the new sysctl configuration
+    fi
+}
+
+# modifying /etc/sysctl.conf
+add_sysctl_param "vm.overcommit_memory" "1" "/etc/sysctl.conf"
+add_sysctl_param "net.core.somaxconn" "512" "/etc/sysctl.conf"
+
 systemctl start redis-server.service
 
 cat <<EOF | tee /lib/systemd/system/rpint.service
@@ -111,7 +133,7 @@ systemctl disable hciuart.service 2>/dev/null
 systemctl disable dhcpcd.service 2>/dev/null
 systemctl disable --now systemd-timesyncd.service 2>/dev/null
 
-echo "sudo ip link set dev eth0 up" | tee -a /etc/rc.local
+echo "sudo ip link set dev eth0 up" | tee /etc/rc.local
 chmod +x /etc/rc.local
 
 rm $downloaddir/RPiNT.zip
