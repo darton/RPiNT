@@ -83,7 +83,6 @@ systemctl start redis-server.service
 mv $unpackdir/scripts/rpint.service /lib/systemd/system/rpint.service
 systemctl daemon-reload
 systemctl enable rpint.service
-systemctl start rpint.service
 
 systemctl stop dphys-swapfile.service 2>/dev/null
 systemctl disable dphys-swapfile.service 2>/dev/null
@@ -102,6 +101,7 @@ echo "-------------------------------------"
 echo "Installation successfully completed !"
 echo "-------------------------------------"
 echo ""
+echo "Reboot is necessary"
 echo "Do you want to reboot RPiMS now ?"
 echo ""
 
