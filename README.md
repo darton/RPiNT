@@ -22,16 +22,13 @@ To writing an image to the SD card, use [Imager](https://www.raspberrypi.org/dow
 
 ### Run installation script
 
-Running the following command from cli  will download and run the script.
-
-#### Warning
-Run the follwing command while logged into the Raspberry Pi console as the user named pi. If you execute it as a different user, you will need to modify section [Service] in the rpint.service file afterward.
+Running the following command in the CLI will download and execute the installation script.
 
 ```
 curl -sS https://raw.githubusercontent.com/darton/RPiNT/refs/heads/main/scripts/install.sh |sudo bash
 ```
+The service rpint will start automatically. However, if you want to manually stop or restart it, use systemd commands:
 
-Start/Stop RPiNT
 ```
 sudo systemctl start rpint.service
 sudo systemclt stop rpint.service
