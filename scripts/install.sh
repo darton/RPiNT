@@ -80,7 +80,25 @@ echo 'net.core.somaxconn=512' | tee -a /etc/sysctl.conf
 echo 'maxmemory 100mb' | tee -a /etc/redis/redis.conf
 systemctl start redis-server.service
 
-mv $unpackdir/scripts/rpint.service /lib/systemd/system/rpint.service
+cat <<EOF | tee /lib/systemd/system/rpint.service
+[Unit]
+Description=RPiNT Service
+After=redis-server.service
+Conflicts=getty@tty1.service
+Documentation=https://github.com/darton/rpint
+
+[Service]
+Type=simple
+User=$SUDO_USER
+Group=$SUDO_USER
+ExecStart=/usr/bin/python3 $installdir/rpint.py
+StandardInput=tty-force
+WorkingDirectory=$installdir
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 systemctl daemon-reload
 systemctl enable rpint.service
 
