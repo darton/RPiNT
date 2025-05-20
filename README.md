@@ -39,8 +39,13 @@ sudo systemclt stop rpint.service
 ### Joystick
 Now you can use the joystick to scroll the LCD screen content horizontally and vertically, allowing you to view data that does not fit on the screen.
 
+### Shutdown
+To shutdown the system, press "KEY1" for more than 5 seconds.
 
 ### rpint.toml config file
+
+The configuration of RPiNT is done through the rpint.toml file. Below is a brief description of some of its settings:
+
 
 auto_lldp_read: true
 
@@ -51,8 +56,6 @@ auto_lldp_read: false
 
 To read lldp data, connect the UTP cable to the device, wait a few seconds, press "KEY 1" a few seconds. If there is no reading, try again.
 
-
-To shut down the system, press "KEY1" for more than 5 seconds.
 
 ## B.o.M - Bill of Materials
 
