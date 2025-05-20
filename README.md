@@ -22,7 +22,10 @@ To writing an image to the SD card, use [Imager](https://www.raspberrypi.org/dow
 
 ### Run installation script
 
-Running the following command will download and run the script.
+Running the following command from cli  will download and run the script.
+
+#### Warning
+Run the follwing command while logged into the Raspberry Pi console as the user named pi. If you execute it as a different user, you will need to modify section [Service] in the rpint.service file afterward.
 
 ```
 curl -sS https://raw.githubusercontent.com/darton/RPiNT/refs/heads/main/scripts/install.sh |sudo bash
