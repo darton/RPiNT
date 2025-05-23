@@ -44,10 +44,12 @@ def lldp(command_runner=subprocess.run):
     if chassis_subkey == "id":
         chassis_id = chassis_data.get("value", "N/A")
         chassis_description = chassis.get("descr", "N/A")
+        management_ip = ", ".join(chassis.get("mgmt-ip", ["N/A"]))
     else:
         chassis_id = chassis_data.get("id").get("value", "N/A")
         chassis_description = chassis_data.get("descr", "N/A")
-    
+        management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"]))
+
     port_data = eth0_data.get("port", {})
     port_id = port_data.get("id", {}).get("value", "N/A")
     port_descr = port_data.get("descr", "N/A")
@@ -74,8 +76,7 @@ def lldp(command_runner=subprocess.run):
     lldp_med = eth0_data.get("lldp-med", {})
     device_type = lldp_med.get("device-type", "N/A")
     capability = lldp_med.get("capability", {}).get("available", "N/A")
-    management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"]))
-    
+
     LLDP = {
         "chassis_id": chassis_id,
         "chassis_description": chassis_description,
