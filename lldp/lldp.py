@@ -1,5 +1,6 @@
 import subprocess
 import json
+import sys
 from systemd import journal
 
 def hset_init_values():
@@ -37,11 +38,18 @@ def lldp(command_runner=subprocess.run):
         return None
 
     eth0_data = lldp.get("lldp", {}).get("interface", {}).get("eth0", {})
-    chassis_key = next(iter(eth0_data.get("chassis", {})), "Unknown")
-    chassis_data = eth0_data.get("chassis", {}).get(chassis_key, {})
-    chassis_id = chassis_data.get("value", "N/A")
-    chassis_description = eth0_data.get("chassis", {}).get("descr", "N/A")
+    chassis = eth0_data.get("chassis", {})
+    chassis_subkey = next(iter(chassis), None) if any(isinstance(v, dict) for v in chassis.values()) else None
+    chassis_data = chassis.get(chassis_subkey, chassis)
+
+    if chassis_subkey == "id":
+        chassis_id = chassis_data.get("value", "N/A")
+    else:
+        chassis_id = chassis_data.get("id").get("value", "N/A")
+
+    chassis_description = chassis_data.get("descr", "N/A")
     management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"]))
+
     port_data = eth0_data.get("port", {})
     port_id = port_data.get("id", {}).get("value", "N/A")
     port_descr = port_data.get("descr", "N/A")
