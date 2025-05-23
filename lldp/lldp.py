@@ -1,6 +1,5 @@
 import subprocess
 import json
-import sys
 from systemd import journal
 
 def hset_init_values():
@@ -44,10 +43,11 @@ def lldp(command_runner=subprocess.run):
 
     if chassis_subkey == "id":
         chassis_id = chassis_data.get("value", "N/A")
+        chassis_description = chassis.get("descr", "N/A")
     else:
         chassis_id = chassis_data.get("id").get("value", "N/A")
+        chassis_description = chassis_data.get("descr", "N/A")
 
-    chassis_description = chassis_data.get("descr", "N/A")
     management_ip = ", ".join(chassis_data.get("mgmt-ip", ["N/A"]))
 
     port_data = eth0_data.get("port", {})
@@ -67,9 +67,12 @@ def lldp(command_runner=subprocess.run):
     elif isinstance(advertised_modes, str):
         available_modes.append(advertised_modes)
     available_modes_str = ",".join(available_modes)
+
     vlan_id = eth0_data.get("vlan", {}).get("vlan-id", "N/A")
+
     power_supported = port_data.get("power", {}).get("supported", "N/A")
     power_enabled = port_data.get("power", {}).get("enabled", "N/A")
+
     lldp_med = eth0_data.get("lldp-med", {})
     device_type = lldp_med.get("device-type", "N/A")
     capability = lldp_med.get("capability", {}).get("available", "N/A")
