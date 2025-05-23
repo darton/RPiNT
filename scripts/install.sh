@@ -132,8 +132,8 @@ systemctl stop dphys-swapfile.service 2>/dev/null
 systemctl disable dphys-swapfile.service 2>/dev/null
 #systemctl disable systemd-random-seed.service 2>/dev/null
 systemctl disable hciuart.service 2>/dev/null
-systemctl disable dhcpcd.service 2>/dev/null
-systemctl disable --now systemd-timesyncd.service 2>/dev/null
+#systemctl disable dhcpcd.service 2>/dev/null
+#systemctl disable --now systemd-timesyncd.service 2>/dev/null
 
 echo "ip link set dev eth0 up" | tee /etc/rc.local
 chmod +x /etc/rc.local
