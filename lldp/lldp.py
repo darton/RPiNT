@@ -2,6 +2,7 @@ import subprocess
 import json
 from systemd import journal
 
+
 def hset_init_values():
     return {
         'chassis_id': '--',
@@ -17,7 +18,6 @@ def hset_init_values():
         'power_supported': '--',
         'power_enabled': '--',
         'lldp_med_device_type': '--',
-        'lldp_med_capability': '--',
     }
 
 def lldp(command_runner=subprocess.run):
@@ -75,7 +75,6 @@ def lldp(command_runner=subprocess.run):
 
     lldp_med = eth0_data.get("lldp-med", {})
     device_type = lldp_med.get("device-type", "N/A")
-    capability = lldp_med.get("capability", {}).get("available", "N/A")
 
     LLDP = {
         "chassis_id": chassis_id,
@@ -91,7 +90,6 @@ def lldp(command_runner=subprocess.run):
         "power_supported": str(power_supported),
         "power_enabled": str(power_enabled),
         "lldp_med_device_type": device_type,
-        "lldp_med_capability": str(capability)
     }
     return LLDP
 
