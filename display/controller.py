@@ -92,7 +92,7 @@ class DisplayController:
                     line_spacing = c.config['font_size'] + 1
                     if c.config.get('use_ups_hat', False):
                         battery_power = c.redis_db.get('battery_power')
-                        draw.text((x+1, 0), f"Battery Power {battery_power}%", font=font, fill="yellow")
+                        draw.text((x+1, 0), f"Battery {battery_power}%", font=font, fill="yellow")
                     for i, line in enumerate(visible_lines, start=0):
                         try:
                             label, value = line.split(": ")
