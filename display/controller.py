@@ -73,9 +73,9 @@ class DisplayController:
                 lldp = c.redis_db.hgetall('LLDP')
                 self.data_lines = []
                 if c.config.get("show_chassis_id", False): self.data_lines.append(f"Chassis ID: {lldp.get('chassis_id', '-')}")
-                if c.config.get("show_chassis_description", False): self.data_lines.append(f"Description: {lldp.get('chassis_description', '-')}")
                 if c.config.get("show_port_id", False): self.data_lines.append(f"Port ID: {lldp.get('port_id', '-')}")
                 if c.config.get("show_vlan_id", False): self.data_lines.append(f"VLAN ID: {lldp.get('vlan_id', '-')}")
+                if c.config.get("show_chassis_description", False): self.data_lines.append(f"Description: {lldp.get('chassis_description', '-')}")
                 if c.config.get("show_port_descr", False): self.data_lines.append(f"Port Description: {lldp.get('port_descr', '-')}")
                 if c.config.get("show_auto_neg_current", False): self.data_lines.append(f"Current Mode: {lldp.get('auto_neg_current', '-')}")
                 if c.config.get("show_auto_supported", False): self.data_lines.append(f"Auto Support: {lldp.get('auto_supported', '-')}")
@@ -84,6 +84,7 @@ class DisplayController:
                 if c.config.get("show_power_supported", False): self.data_lines.append(f"Power Support: {lldp.get('power_supported', '-')}")
                 if c.config.get("show_power_enabled", False): self.data_lines.append(f"Power Enabled: {lldp.get('power_enabled', '-')}")
                 if c.config.get("show_device_type", False): self.data_lines.append(f"Device Type: {lldp.get('lldp_med_device_type', '-')}")
+                if c.config.get("show_management_ip", False): self.data_lines.append(f"Management IP: {lldp.get('management_ip', '-')}")
                 visible_lines = self.data_lines[self.scroll_index:self.scroll_index + self.max_lines]
                 with canvas(device) as draw:
                     font = ImageFont.truetype(c.font_path, c.config['font_size'])
